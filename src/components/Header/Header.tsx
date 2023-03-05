@@ -11,12 +11,21 @@ type Links = {
 };
 
 const S = {
-  Header: styled.header`
+  Header: styled.header<{ $count: number }>`
     align-items: center;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     display: flex;
     justify-content: space-between;
-    padding: 14px ${spacing.XXXS};
+    position: relative;
+
+    &:before {
+      background: ${colors.WHITE};
+      bottom: 0;
+      content: '';
+      height: 1px;
+      position: absolute;
+      width: ${({ $count }) => `${$count}%`};
+    }
   `,
 
   Link: styled.li`
@@ -72,7 +81,7 @@ const S = {
 
 export function Header() {
   return (
-    <S.Header>
+    <S.Header $count={0}>
       <S.Logo to="/">
         <FaCheckCircle size={18} />
         <span>Pomofocus</span>

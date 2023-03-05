@@ -6,6 +6,7 @@ import App from './App';
 import { ErrorBoundary } from '@components';
 import { colors } from '@utils';
 import './index.css';
+import { TimerProvider } from '@context';
 
 const router = createHashRouter([
   {
@@ -56,8 +57,10 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <GlobalStyles />
     <ThemeProvider theme={theme}>
       <S.Container>
-        <RouterProvider router={router} />
+        <TimerProvider>
+          <RouterProvider router={router} />
+        </TimerProvider>
       </S.Container>
     </ThemeProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
