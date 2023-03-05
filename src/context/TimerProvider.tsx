@@ -26,7 +26,7 @@ export type TimerState = {
   isPlaying: boolean;
 };
 
-export type TimerAction = { type: keyof typeof ACTION_TYPES; payload?: unknown };
+export type TimerAction = { type: keyof typeof ACTION_TYPES; payload: keyof typeof TIMER_NAME };
 
 type TimerContextType = Partial<TimerState> & {
   percentageValue: number;
@@ -91,7 +91,7 @@ const reducer = (state: TimerState, action: TimerAction) => {
       }
       return {
         ...state,
-        currentTimerName: action.payload as unknown as keyof typeof TIMER_NAME,
+        currentTimerName: action.payload,
         seconds: 0,
         isPaused: false,
         isPlaying: false,

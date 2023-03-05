@@ -151,7 +151,7 @@ export function Timer() {
         </S.Tabs>
       </header>
       <S.Time>{currentTime}</S.Time>
-      <S.Button type="button" $isPlaying={isPlaying} onClick={handleClick}>
+      <S.Button type="button" $isPlaying={isPlaying as boolean} onClick={handleClick}>
         {isPlaying ? 'Pause' : 'Start'}
       </S.Button>
     </S.Container>

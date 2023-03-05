@@ -32,7 +32,7 @@ function App() {
   }, [currentTime]);
 
   return (
-    <ThemeProvider theme={{ bg: Options.theme.colorThemes[currentTimerName], text: colors.WHITE }}>
+    <ThemeProvider theme={{ bg: Options.theme.colorThemes[currentTimerName ?? 'POMO'], text: colors.WHITE }}>
       <S.Background>
         <S.Container>
           <Header />
