@@ -1,13 +1,6 @@
 {
-  "plugins": [
-    "stylelint-high-performance-animation",
-    "stylelint-order",
-    "stylelint-z-index-value-constraint"
-  ],
-  "extends": [
-    "stylelint-config-recommended",
-    "stylelint-config-styled-components"
-  ],
+  "plugins": ["stylelint-order", "stylelint-z-index-value-constraint"],
+  "extends": ["stylelint-config-recommended", "stylelint-config-styled-components"],
   "rules": {
     "at-rule-no-unknown": [
       true,
@@ -22,7 +15,6 @@
     "number-leading-zero": "always",
     "number-max-precision": 2,
     "order/properties-alphabetical-order": true,
-    "plugin/no-low-performance-animation-properties": true,
     "plugin/z-index-value-constraint": {
       "min": 1,
       "max": 10
