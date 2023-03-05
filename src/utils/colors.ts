@@ -2,7 +2,7 @@ export const colors = {
   BLACK: 'hsl(0 0% 0%)',
   TRANSPARENT_BLACK: 'hsl(0 0% 0% / 0.1)',
   WHITE: 'hsl(0 0% 100%)',
-  TRANSPARENT_WHITE: 'hsl(0 0% 100% / 0.2)',
+  TRANSPARENT_WHITE: 'hsl(0 0% 100% / 0.1)',
   RED: 'hsl(0 45% 51%)',
   TEAL: 'hsl(184 42% 38%)',
   LIGHT_BLUE: 'hsl(205 45% 41%)',
