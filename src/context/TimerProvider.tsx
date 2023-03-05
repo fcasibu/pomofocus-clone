@@ -1,113 +1,103 @@
+import { useSafeDispatch } from '@hooks';
+import { Options } from '@options';
+import { padWithZeroes } from '@utils';
 import type { ReactNode } from 'react';
-import { useLayoutEffect, useReducer, createContext, useMemo } from 'react';
+import { createContext, useCallback, useMemo, useReducer, useRef } from 'react';
 
 const ACTION_TYPES = {
   START: 'START',
   PLAYING: 'PLAYING',
-  BREAK: 'BREAK',
   PAUSE: 'PAUSE',
-  NEXT: 'NEXT',
+  CHANGE: 'CHANGE',
 } as const;
 
-const DEFAULT_END_TIME = 2500;
-const DEFAULT_BREAK_TIME = 500;
+const TIMER_NAME = {
+  POMO: 'POMO',
+  SHORT: 'SHORT',
+  LONG: 'LONG',
+} as const;
 
 export type TimerState = {
-  currentTime: number;
-  endTime: number;
-  breakTime: number;
+  seconds: number;
+  time: Record<keyof typeof TIMER_NAME, number>;
+  currentTimerName: keyof typeof TIMER_NAME;
   pomoDone: number;
   isPaused: boolean;
-  isStopped: boolean;
-  isNext: boolean;
-  isStarted: boolean;
-  isBreak: boolean;
+  isPlaying: boolean;
 };
 
-export type TimerAction = TimerState & { type: keyof typeof ACTION_TYPES };
+export type TimerAction = { type: keyof typeof ACTION_TYPES; payload?: unknown };
 
-type TimerContextType = {
+type TimerContextType = Partial<TimerState> & {
   percentageValue: number;
-  timerStart(endTime: number): void;
-  timerPause(): void;
-  timerNext(): void;
-  timerBreak(breakTime: number): void;
+  currentTime: string;
+  startTimer(): void;
+  pauseTimer(): void;
+  changeCurrentTimer(tabName: keyof typeof TIMER_NAME): void;
 };
 
 const reducer = (state: TimerState, action: TimerAction) => {
-  const { currentTime, endTime, pomoDone = 0 } = state;
+  const { timer } = Options;
+
   switch (action.type) {
     case ACTION_TYPES.START: {
-      return {
-        currentTime: 0,
-        endTime: action.endTime,
-        breakTime: state.breakTime,
-        pomoDone: pomoDone,
-        isPaused: false,
-        isStopped: false,
-        isNext: false,
-        isStarted: true,
-        isBreak: false,
-      };
+      return { ...state, isPlaying: true, isPaused: false, seconds: state.seconds };
     }
+
     case ACTION_TYPES.PLAYING: {
-      if (state.currentTime === state.endTime || (state.isBreak && state.currentTime === state.breakTime)) {
+      const isPomoFinished = state.seconds === state.time.POMO && state.currentTimerName === TIMER_NAME.POMO;
+      const isShortBreakFinished = state.seconds === state.time.SHORT && state.currentTimerName === TIMER_NAME.SHORT;
+      const isLongBreakFinished = state.seconds === state.time.LONG && state.currentTimerName === TIMER_NAME.LONG;
+      const isLongBreakIntervalFulfilled = state.pomoDone % timer.longBreakInterval === timer.longBreakInterval - 1;
+
+      if (isPomoFinished && isLongBreakIntervalFulfilled) {
         return {
           ...state,
-          isBreak: !state.isBreak,
+          currentTimerName: TIMER_NAME.LONG,
+          isPlaying: false,
+          seconds: 0,
+          pomoDone: state.pomoDone + 1,
         };
       }
-      return {
-        currentTime: state.currentTime + 1,
-        endTime: endTime,
-        breakTime: state.breakTime,
-        pomoDone: pomoDone,
-        isPaused: false,
-        isStopped: false,
-        isNext: false,
-        isStarted: true,
-        isBreak: state.isBreak,
-      };
+
+      if (isPomoFinished) {
+        return {
+          ...state,
+          currentTimerName: TIMER_NAME.SHORT,
+          isPlaying: false,
+          seconds: 0,
+          pomoDone: state.pomoDone + 1,
+        };
+      }
+
+      if (isShortBreakFinished || isLongBreakFinished) {
+        return { ...state, currentTimerName: TIMER_NAME.POMO, isPlaying: false, seconds: 0 };
+      }
+
+      return { ...state, seconds: state.seconds + 1 };
     }
-    case ACTION_TYPES.BREAK: {
-      return {
-        currentTime: 0,
-        endTime: endTime,
-        breakTime: action.breakTime,
-        pomoDone: pomoDone,
-        isPaused: false,
-        isStopped: false,
-        isNext: false,
-        isStarted: false,
-        isBreak: true,
-      };
-    }
+
     case ACTION_TYPES.PAUSE: {
-      return {
-        currentTime: currentTime,
-        endTime: endTime,
-        breakTime: state.breakTime,
-        pomoDone: pomoDone,
-        isPaused: true,
-        isStopped: false,
-        isNext: false,
-        isStarted: true,
-        isBreak: false,
-      };
+      return { ...state, isPaused: true, isPlaying: false };
     }
-    case ACTION_TYPES.NEXT: {
+
+    case ACTION_TYPES.CHANGE: {
+      if (state.isPlaying) {
+        const isOK = confirm('Timer is current playing are you sure?');
+
+        if (!isOK) {
+          return { ...state, isPlaying: false };
+        }
+      }
       return {
-        currentTime: 0,
-        endTime: endTime,
-        breakTime: state.breakTime,
-        pomoDone: pomoDone + 1,
+        ...state,
+        currentTimerName: action.payload as unknown as keyof typeof TIMER_NAME,
+        seconds: 0,
         isPaused: false,
-        isStopped: false,
-        isNext: true,
-        isStarted: false,
-        isBreak: false,
+        isPlaying: false,
       };
     }
+
     default: {
       throw new Error(`Unexpected action type: ${action.type}`);
     }
@@ -116,58 +106,159 @@ const reducer = (state: TimerState, action: TimerAction) => {
 
 export const TimerContext = createContext<TimerContextType | null>(null);
 
+// TODO: Refactor getPercentageValue, getMinutes, and getSeconds
+const getPercentageValue = (state: TimerState) => {
+  switch (state.currentTimerName) {
+    case TIMER_NAME.POMO: {
+      return (state.seconds / state.time.POMO) * 100;
+    }
+
+    case TIMER_NAME.SHORT: {
+      return (state.seconds / state.time.SHORT) * 100;
+    }
+
+    case TIMER_NAME.LONG: {
+      return (state.seconds / state.time.LONG) * 100;
+    }
+
+    default: {
+      throw new Error(`Unknown ${state.currentTimerName}`);
+    }
+  }
+};
+
+const getMinutes = (state: TimerState) => {
+  const calculateMinutes = (name: keyof typeof TIMER_NAME) =>
+    padWithZeroes(Math.floor((state.time[name] - state.seconds) / 60));
+
+  switch (state.currentTimerName) {
+    case TIMER_NAME.POMO: {
+      return calculateMinutes(TIMER_NAME.POMO);
+    }
+
+    case TIMER_NAME.SHORT: {
+      return calculateMinutes(TIMER_NAME.SHORT);
+    }
+
+    case TIMER_NAME.LONG: {
+      return calculateMinutes(TIMER_NAME.LONG);
+    }
+
+    default: {
+      throw new Error(`Unknown ${state.currentTimerName}`);
+    }
+  }
+};
+
+const getSeconds = (state: TimerState, minutes: string) => {
+  const calculateSeconds = (name: keyof typeof TIMER_NAME) =>
+    minutes !== '00'
+      ? padWithZeroes(Math.abs((state.seconds % 60) - 60))
+      : padWithZeroes(state.time[name] - state.seconds);
+
+  switch (state.currentTimerName) {
+    case TIMER_NAME.POMO: {
+      return calculateSeconds(TIMER_NAME.POMO);
+    }
+
+    case TIMER_NAME.SHORT: {
+      return calculateSeconds(TIMER_NAME.SHORT);
+    }
+
+    case TIMER_NAME.LONG: {
+      return calculateSeconds(TIMER_NAME.LONG);
+    }
+
+    default: {
+      throw new Error(`Unknown ${state.currentTimerName}`);
+    }
+  }
+};
+
 export function TimerProvider({ children }: { children: ReactNode }) {
   // Time is in Seconds
-  const [state, dispatch] = useReducer(reducer, {
-    currentTime: 0,
-    endTime: DEFAULT_END_TIME,
-    breakTime: DEFAULT_BREAK_TIME,
+  const [state, unsafeDispatch] = useReducer(reducer, {
+    seconds: 0,
+    time: Options.timer.time,
+    currentTimerName: TIMER_NAME.POMO,
     pomoDone: 0,
     isPaused: false,
-    isStopped: false,
-    isNext: false,
-    isStarted: false,
-    isBreak: false,
+    isPlaying: false,
   });
+  const requestIDRef = useRef(0);
 
-  useLayoutEffect(() => {
-    const ONE_SECOND = 1000;
-    let timeout: number;
+  const dispatch = useSafeDispatch(unsafeDispatch);
 
-    if (state.isStarted) {
-      timeout = setInterval(() => {
-        dispatch({ ...state, type: 'PLAYING' });
-      }, ONE_SECOND);
-    }
+  if (!state.isPlaying) {
+    cancelAnimationFrame(requestIDRef.current);
+  }
 
-    if (state.isBreak) {
-      dispatch({ ...state, type: 'BREAK' });
-    }
+  const animate = useCallback(
+    (startTime: number) => (currentTime: number) => {
+      const elapsedTime = currentTime - startTime;
+      if (elapsedTime >= 1000) {
+        dispatch({ type: 'PLAYING' });
+        startTime = performance.now();
+      }
+      requestIDRef.current = requestAnimationFrame(animate(startTime));
+    },
+    [dispatch],
+  );
 
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [state.isStarted, state.isBreak]);
+  const startTimer = useCallback(() => {
+    const startTime = performance.now();
+    dispatch({ type: 'START' });
+    requestIDRef.current = requestAnimationFrame(animate(startTime));
+  }, [dispatch]);
 
-  const timerStart = (endTime: number) => {
-    dispatch({ ...state, type: 'START', endTime });
-  };
+  const pauseTimer = useCallback(() => {
+    dispatch({ type: 'PAUSE' });
+    cancelAnimationFrame(requestIDRef.current);
+  }, [dispatch]);
 
-  const timerPause = () => {
-    dispatch({ ...state, type: 'PAUSE' });
-  };
+  const changeCurrentTimer = useCallback(
+    (tabName: keyof typeof TIMER_NAME) => {
+      dispatch({ type: 'CHANGE', payload: tabName });
+    },
+    [dispatch],
+  );
 
-  const timerBreak = (breakTime: number) => {
-    dispatch({ ...state, type: 'BREAK', breakTime });
-  };
+  const { percentageValue, minutes, seconds } = useMemo(() => {
+    const pv = getPercentageValue(state);
+    const m = getMinutes(state);
+    const s = getSeconds(state, m);
 
-  const timerNext = () => {
-    dispatch({ ...state, type: 'NEXT' });
-  };
+    return { percentageValue: pv, minutes: m, seconds: s };
+  }, [state.currentTimerName, state.seconds]);
 
-  const percentageValue = Math.ceil((state.currentTime / state.endTime) * 100);
+  const currentTime = seconds !== '60' ? `${minutes}:${seconds}` : `${minutes}:00`;
 
-  const values = useMemo(() => ({ percentageValue, timerStart, timerPause, timerBreak, timerNext }), [percentageValue]);
+  const values = useMemo(
+    () => ({
+      currentTimerName: state.currentTimerName,
+      pomoDone: state.pomoDone,
+      isPaused: state.isPaused,
+      isPlaying: state.isPlaying,
+      currentTime,
+      percentageValue,
+      startTimer,
+      pauseTimer,
+      changeCurrentTimer,
+    }),
+    [
+      currentTime,
+      percentageValue,
+      minutes,
+      seconds,
+      state.currentTimerName,
+      state.pomoDone,
+      state.isPaused,
+      state.isPlaying,
+      startTimer,
+      pauseTimer,
+      changeCurrentTimer,
+    ],
+  );
 
   return <TimerContext.Provider value={values}>{children}</TimerContext.Provider>;
 }
