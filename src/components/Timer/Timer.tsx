@@ -1,11 +1,161 @@
-import styled from 'styled-components';
+import ClickSound from '@assets/rclick.mp3';
+import { useTimer } from '@hooks';
+import { colors, media, spacing } from '@utils';
+import styled, { css } from 'styled-components';
 
-const S = {
-  Container: styled.div``,
+type Tabs = {
+  name: 'POMO' | 'SHORT' | 'LONG';
+  short: string;
+  long: string;
 };
 
+const S = {
+  Button: styled.button<{ $isPlaying: boolean }>`
+    all: unset;
+    background-color: ${colors.WHITE};
+    border-radius: 3px;
+    box-shadow: inset 0 -6px ${colors.TRANSPARENT_BLACK};
+    color: ${({ theme }) => theme.bg};
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    min-width: 120px;
+    padding: ${spacing.S};
+    text-align: center;
+    text-transform: uppercase;
+
+    ${({ $isPlaying }) =>
+      $isPlaying
+        ? css`
+            box-shadow: unset;
+            transform: scaleY(0.94) translateY(2px);
+          `
+        : null}
+
+    @media ${media.greaterThan('sm')} {
+      font-size: 24px;
+      min-width: 160px;
+    }
+  `,
+
+  Container: styled.div`
+    background-color: ${colors.TRANSPARENT_WHITE};
+    border-radius: 3px;
+    display: grid;
+    gap: ${spacing.XL};
+    margin: 0 auto ${spacing.XL};
+    max-width: 480px;
+    padding: ${spacing.S};
+    place-items: center;
+  `,
+
+  Tabs: styled.ul`
+    align-items: center;
+    display: flex;
+    justify-content: center;
+  `,
+
+  Tab: styled.li<{ $isSelected: boolean }>`
+    background-color: ${({ $isSelected }) => ($isSelected ? 'hsl(0 0% 0% / 0.2)' : 'none')};
+    border-radius: 3px;
+    cursor: pointer;
+
+    > button {
+      all: unset;
+      font-weight: ${({ $isSelected }) => ($isSelected ? '600' : 'unset')};
+      padding: ${spacing.XXXS};
+    }
+
+    > button:focus {
+      outline: 1px solid;
+      outline-color: initial;
+    }
+
+    &:active {
+      transform: scaleY(0.98) translateY(2px);
+    }
+
+    .tab-long {
+      display: none;
+    }
+
+    @media ${media.greaterThan('sm')} {
+      .tab-long {
+        display: unset;
+      }
+
+      .tab-short {
+        display: none;
+      }
+    }
+  `,
+
+  Time: styled.h2`
+    font-size: 72px;
+    font-weight: 700;
+
+    @media ${media.greaterThan('sm')} {
+      font-size: 102px;
+    }
+  `,
+};
+
+const tabs: Tabs[] = [
+  {
+    name: 'POMO',
+    short: 'Pomo',
+    long: 'Pomodoro',
+  },
+  {
+    name: 'SHORT',
+    short: 'Short',
+    long: 'Short Break',
+  },
+  {
+    name: 'LONG',
+    short: 'Long',
+    long: 'Long Break',
+  },
+];
+
 export function Timer() {
-  return <S.Container>Hello, World!</S.Container>;
+  const { startTimer, pauseTimer, isPlaying, currentTimerName, currentTime, changeCurrentTimer } = useTimer();
+
+  const handleTabChange = (tabName: Tabs['name']) => () => {
+    if (currentTimerName === tabName) return;
+    changeCurrentTimer(tabName);
+  };
+
+  const handleClick = () => {
+    new Audio(ClickSound).play();
+    if (!isPlaying) {
+      startTimer();
+      return;
+    }
+
+    pauseTimer();
+  };
+
+  return (
+    <S.Container>
+      <header>
+        <S.Tabs>
+          {tabs.map((tab) => (
+            <S.Tab key={tab.name} $isSelected={tab.name === currentTimerName}>
+              <button type="button" onClick={handleTabChange(tab.name)}>
+                <span className="tab-short">{tab.short}</span>
+                <span className="tab-long">{tab.long}</span>
+              </button>
+            </S.Tab>
+          ))}
+        </S.Tabs>
+      </header>
+      <S.Time>{currentTime}</S.Time>
+      <S.Button type="button" $isPlaying={isPlaying} onClick={handleClick}>
+        {isPlaying ? 'Pause' : 'Start'}
+      </S.Button>
+    </S.Container>
+  );
 }
 
 export default Timer;

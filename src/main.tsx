@@ -1,12 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createHashRouter, RouterProvider } from 'react-router-dom';
-import styled, { createGlobalStyle, ThemeProvider } from 'styled-components';
-import App from './App';
+import { createGlobalStyle } from 'styled-components';
 import { ErrorBoundary } from '@components';
-import { colors } from '@utils';
-import './index.css';
 import { TimerProvider } from '@context';
+import App from './App';
+import './index.css';
 
 const router = createHashRouter([
   {
@@ -40,27 +39,11 @@ a {
 }
 `;
 
-const theme = {
-  bg: colors.RED,
-  text: colors.WHITE,
-};
-
-const S = {
-  Container: styled.div`
-    background-color: ${(props) => props.theme.bg};
-    height: 100%;
-  `,
-};
-
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <GlobalStyles />
-    <ThemeProvider theme={theme}>
-      <S.Container>
-        <TimerProvider>
-          <RouterProvider router={router} />
-        </TimerProvider>
-      </S.Container>
-    </ThemeProvider>
+    <TimerProvider>
+      <RouterProvider router={router} />
+    </TimerProvider>
   </React.StrictMode>,
 );
