@@ -13,9 +13,11 @@ type Links = {
 const S = {
   Header: styled.header<{ $count: number }>`
     align-items: center;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid ${colors.TRANSPARENT_BLACK};
     display: flex;
     justify-content: space-between;
+    margin-bottom: ${spacing.XL};
+    padding-bottom: ${spacing.XXS};
     position: relative;
 
     &:before {
@@ -29,14 +31,14 @@ const S = {
   `,
 
   Link: styled.li`
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: ${colors.TRANSPARENT_WHITE};
     border-radius: 2px;
     cursor: pointer;
     font-size: 14px;
     padding: ${spacing.XXXS} ${spacing.XXS};
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.23);
+      background-color: hsla(0 0% 100% / 0.23);
     }
 
     > * {
@@ -73,8 +75,15 @@ const S = {
     gap: ${spacing.XXXXS};
 
     > span {
+      display: none;
       font-size: 18px;
       font-weight: 600;
+    }
+
+    @media ${media.greaterThan('sm')} {
+      > span {
+        display: unset;
+      }
     }
   `,
 };
