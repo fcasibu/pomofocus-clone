@@ -1,8 +1,9 @@
-import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-import type { IconType } from 'react-icons/lib';
-import { FaUserAlt, FaCog, FaCheckCircle, FaChartBar } from 'react-icons/fa';
+import { useTimer } from '@hooks';
 import { colors, media, spacing } from '@utils';
+import { FaChartBar, FaCheckCircle, FaCog, FaUserAlt } from 'react-icons/fa';
+import type { IconType } from 'react-icons/lib';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 
 type Links = {
   icon?: IconType;
@@ -38,7 +39,7 @@ const S = {
     padding: ${spacing.XXXS} ${spacing.XXS};
 
     &:hover {
-      background-color: hsla(0 0% 100% / 0.23);
+      background-color: hsla(0 0% 100% / 0.15);
     }
 
     > * {
@@ -89,8 +90,10 @@ const S = {
 };
 
 export function Header() {
+  const { percentageValue } = useTimer();
+
   return (
-    <S.Header $count={0}>
+    <S.Header $count={percentageValue}>
       <S.Logo to="/">
         <FaCheckCircle size={18} />
         <span>Pomofocus</span>
