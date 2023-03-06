@@ -9,8 +9,10 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "format": "prettier src/**/*.{tsx,ts} --write",
-    "lint": "eslint src/**/*.{tsx,ts} && stylelint src/**/*.{tsx,ts}",
-    "lint:fix": "eslint src/**/*.{tsx,ts} --fix && stylelint src/**/*.{tsx,ts} --fix && npm run format"
+    "eslint": "eslint src/**/*.{tsx,ts}",
+    "stylelint": "stylelint src/**/*.{tsx,ts}",
+    "lint": "npm run eslint && npm run stylelint",
+    "lint:fix": "npm run eslint -- --fix && npm run stylelint -- --fix && npm run format"
   },
   "dependencies": {
     "react": "^18.2.0",
