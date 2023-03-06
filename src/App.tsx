@@ -11,6 +11,10 @@ const S = {
     background-color: ${({ theme }) => theme.bg};
     height: 100%;
     transition: background-color 0.5s;
+
+    @media (prefers-reduced-motion) {
+      transition: none;
+    }
   `,
   Container: styled.div`
     height: 100%;
@@ -32,7 +36,7 @@ function App() {
   }, [currentTime]);
 
   return (
-    <ThemeProvider theme={{ bg: Options.theme.colorThemes[currentTimerName ?? 'POMO'], text: colors.WHITE }}>
+    <ThemeProvider theme={{ bg: Options.theme.colorThemes[currentTimerName], text: colors.WHITE }}>
       <S.Background>
         <S.Container>
           <Header />
