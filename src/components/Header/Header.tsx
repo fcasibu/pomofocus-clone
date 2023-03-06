@@ -27,8 +27,8 @@ const S = {
       content: '';
       height: 1px;
       position: absolute;
-      width: ${({ $count }) => `${$count}%`};
       transition: width 0.5s;
+      width: ${({ $count }) => `${$count}%`};
     }
   `,
 
