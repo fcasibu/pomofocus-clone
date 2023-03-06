@@ -1,10 +1,11 @@
 import ClickSound from '@assets/rclick.mp3';
 import { useTimer } from '@hooks';
+import type { TimerName } from '@types';
 import { colors, media, spacing } from '@utils';
 import styled, { css } from 'styled-components';
 
 type Tabs = {
-  name: 'POMO' | 'SHORT' | 'LONG';
+  name: TimerName;
   short: string;
   long: string;
 };
@@ -23,6 +24,10 @@ const S = {
     padding: ${spacing.S};
     text-align: center;
     text-transform: uppercase;
+
+    &:focus-visible {
+      outline: auto;
+    }
 
     ${({ $isPlaying }) =>
       $isPlaying
@@ -56,19 +61,17 @@ const S = {
   `,
 
   Tab: styled.li<{ $isSelected: boolean }>`
-    background-color: ${({ $isSelected }) => ($isSelected ? 'hsl(0 0% 0% / 0.2)' : 'none')};
+    background-color: ${({ $isSelected }) => ($isSelected ? colors.TRANSPARENT_BLACK : 'none')};
     border-radius: 3px;
     cursor: pointer;
 
     > button {
-      all: unset;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
       font-weight: ${({ $isSelected }) => ($isSelected ? '600' : 'unset')};
       padding: ${spacing.XXXS};
-    }
-
-    > button:focus {
-      outline: 1px solid;
-      outline-color: initial;
     }
 
     &:active {
@@ -121,37 +124,37 @@ const tabs: Tabs[] = [
 export function Timer() {
   const { startTimer, pauseTimer, isPlaying, currentTimerName, currentTime, changeCurrentTimer } = useTimer();
 
-  const handleTabChange = (tabName: Tabs['name']) => () => {
+  const handleTabChange = (tabName: TimerName) => () => {
     if (currentTimerName === tabName) return;
     changeCurrentTimer(tabName);
   };
 
   const handleClick = () => {
     new Audio(ClickSound).play();
-    if (!isPlaying) {
-      startTimer();
+    if (isPlaying) {
+      pauseTimer();
       return;
     }
 
-    pauseTimer();
+    startTimer();
   };
 
   return (
     <S.Container>
       <header>
         <S.Tabs>
-          {tabs.map((tab) => (
-            <S.Tab key={tab.name} $isSelected={tab.name === currentTimerName}>
-              <button type="button" onClick={handleTabChange(tab.name)}>
-                <span className="tab-short">{tab.short}</span>
-                <span className="tab-long">{tab.long}</span>
+          {tabs.map(({ name, short, long }) => (
+            <S.Tab key={name} $isSelected={name === currentTimerName}>
+              <button type="button" onClick={handleTabChange(name)}>
+                <span className="tab-short">{short}</span>
+                <span className="tab-long">{long}</span>
               </button>
             </S.Tab>
           ))}
         </S.Tabs>
       </header>
       <S.Time>{currentTime}</S.Time>
-      <S.Button type="button" $isPlaying={isPlaying as boolean} onClick={handleClick}>
+      <S.Button type="button" $isPlaying={isPlaying} onClick={handleClick}>
         {isPlaying ? 'Pause' : 'Start'}
       </S.Button>
     </S.Container>
