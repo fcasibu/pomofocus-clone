@@ -1,19 +1,13 @@
+import type { TimerName } from '@types';
 import { colors } from '@utils';
-
-// abstract later
-const TIMER_NAME = {
-  POMO: 'POMO',
-  SHORT: 'SHORT',
-  LONG: 'LONG',
-} as const;
 
 export type Config = {
   timer: {
-    time: Record<keyof typeof TIMER_NAME, number>;
+    time: Record<TimerName, number>;
     longBreakInterval: number;
   };
   theme: {
-    colorThemes: Record<keyof typeof TIMER_NAME, string>;
+    colorThemes: Record<TimerName, string>;
     hourFormat: 24 | 12;
   };
   others: {
@@ -60,27 +54,27 @@ export const Options = (function () {
       return configuration.others;
     },
 
-    setTimerTime(time: Record<keyof typeof TIMER_NAME, number>) {
+    setTimeOption(time: Config['timer']['time']) {
       configuration.timer.time = time;
       localStorage.setItem(KEY, JSON.stringify(this));
     },
 
-    setTimerLongBreakInterval(interval: number) {
+    setLongBreakIntervalOption(interval: number) {
       configuration.timer.longBreakInterval = interval;
       localStorage.setItem(KEY, JSON.stringify(this));
     },
 
-    setThemeColorThemes(themes: Record<keyof typeof TIMER_NAME, string>) {
+    setColorThemeOption(themes: Config['theme']['colorThemes']) {
       configuration.theme.colorThemes = themes;
       localStorage.setItem(KEY, JSON.stringify(this));
     },
 
-    setHourFormat(format: 24 | 12) {
+    setHourFormatOption(format: 24 | 12) {
       configuration.theme.hourFormat = format;
       localStorage.setItem(KEY, JSON.stringify(this));
     },
 
-    setOthersNotification(interval: number) {
+    setNotificationIntervalOption(interval: number) {
       configuration.others.notification.interval = interval;
       localStorage.setItem(KEY, JSON.stringify(this));
     },

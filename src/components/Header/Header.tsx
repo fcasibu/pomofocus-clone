@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 type Links = {
-  icon?: IconType;
+  icon: IconType;
   name: string;
   href?: string;
 };
@@ -28,6 +28,7 @@ const S = {
       height: 1px;
       position: absolute;
       width: ${({ $count }) => `${$count}%`};
+      transition: width 0.5s;
     }
   `,
 
@@ -36,7 +37,6 @@ const S = {
     border-radius: 2px;
     cursor: pointer;
     font-size: 14px;
-    padding: ${spacing.XXXS} ${spacing.XXS};
 
     &:hover {
       background-color: hsla(0 0% 100% / 0.15);
@@ -48,6 +48,13 @@ const S = {
       gap: ${spacing.XXXXS};
     }
 
+    > button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: ${spacing.XXXS} ${spacing.XXS};
+    }
+
     span {
       display: none;
     }
@@ -55,6 +62,7 @@ const S = {
     a {
       align-items: center;
       color: ${colors.WHITE};
+      padding: ${spacing.XXXS} ${spacing.XXS};
     }
 
     @media ${media.greaterThan('md')} {
@@ -94,8 +102,8 @@ export function Header() {
 
   return (
     <S.Header $count={percentageValue}>
-      <S.Logo to="/">
-        <FaCheckCircle size={18} />
+      <S.Logo to="/" aria-label="Go to Home Page">
+        <FaCheckCircle size={18} focusable={false} />
         <span>Pomofocus</span>
       </S.Logo>
       <NavigationBar />
@@ -107,6 +115,7 @@ const links: Links[] = [
   {
     icon: FaChartBar,
     name: 'Report',
+    href: '/report',
   },
   {
     icon: FaCog,
@@ -126,15 +135,16 @@ function NavigationBar() {
         {links.map(({ name, href, icon: Icon }, index) => (
           <S.Link key={`${name}-${index}`}>
             {href ? (
-              <Link to={href}>
-                {Icon ? <Icon size={14} /> : null}
+              /* Refactor aria-label after authentication is implemented */
+              <Link to={href} aria-label={`Go to ${name}`}>
+                <Icon size={14} />
                 <span>{name}</span>
               </Link>
             ) : (
-              <div>
-                {Icon ? <Icon size={14} /> : null}
+              <button type="button" aria-label={`Open ${name}`}>
+                <Icon size={14} />
                 <span>{name}</span>
-              </div>
+              </button>
             )}
           </S.Link>
         ))}
