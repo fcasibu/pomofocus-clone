@@ -1,4 +1,5 @@
 import ClickSound from '@assets/rclick.mp3';
+import { SEO } from '@components/common/';
 import { useTimer } from '@hooks';
 import type { TimerName } from '@types';
 import { colors, media, spacing } from '@utils';
@@ -65,6 +66,10 @@ const S = {
     border-radius: 3px;
     cursor: pointer;
 
+    &:active {
+      transform: scaleY(0.98) translateY(2px);
+    }
+
     > button {
       background: none;
       border: none;
@@ -72,10 +77,6 @@ const S = {
       font-size: 16px;
       font-weight: ${({ $isSelected }) => ($isSelected ? '600' : 'unset')};
       padding: ${spacing.XXXS};
-    }
-
-    &:active {
-      transform: scaleY(0.98) translateY(2px);
     }
 
     .tab-long {
@@ -139,8 +140,16 @@ export function Timer() {
     startTimer();
   };
 
+  const title = currentTimerName === 'POMO' ? `${currentTime} | Time to focus!` : `${currentTime} | Time for a break!`;
+
   return (
     <S.Container>
+      <SEO
+        title={title}
+        description="Pomofocus is a Pomodoro app with a to-do list that helps you stay focused and get more done in less time. Try it now"
+        url="https://fcasibu.github.io/pomofocus-clone"
+        ogImage="https://picsum.photos/536/354"
+      />
       <header>
         <S.Tabs>
           {tabs.map(({ name, short, long }) => (
