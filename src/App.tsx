@@ -3,7 +3,6 @@ import { Header } from '@components/Header';
 import { useTimer } from '@hooks';
 import { Options } from '@options';
 import { colors, spacing } from '@utils';
-import { useEffect } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 
 const S = {
@@ -25,15 +24,7 @@ const S = {
 };
 
 function App() {
-  const { currentTimerName, currentTime } = useTimer();
-
-  useEffect(() => {
-    if (currentTimerName === 'POMO') {
-      document.title = `${currentTime} | Time to focus!`;
-    } else {
-      document.title = `${currentTime} | Time for a break!`;
-    }
-  }, [currentTime]);
+  const { currentTimerName } = useTimer();
 
   return (
     <ThemeProvider theme={{ bg: Options.theme.colorThemes[currentTimerName], text: colors.WHITE }}>

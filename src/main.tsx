@@ -1,11 +1,13 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { createHashRouter, RouterProvider } from 'react-router-dom';
-import { createGlobalStyle } from 'styled-components';
 import { ErrorBoundary } from '@components';
 import { TimerProvider } from '@context';
-import App from './App';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { HelmetProvider } from 'react-helmet-async';
+import { createHashRouter, RouterProvider } from 'react-router-dom';
+import { createGlobalStyle } from 'styled-components';
 import './index.css';
+
+const App = React.lazy(() => import('./App'));
 
 const router = createHashRouter([
   {
@@ -43,7 +45,11 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <GlobalStyles />
     <TimerProvider>
-      <RouterProvider router={router} />
+      <HelmetProvider>
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <RouterProvider router={router} />
+        </React.Suspense>
+      </HelmetProvider>
     </TimerProvider>
   </React.StrictMode>,
 );
