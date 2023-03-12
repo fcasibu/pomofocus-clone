@@ -1,25 +1,25 @@
 import { ErrorBoundary } from '@components';
-import { TimerProvider } from '@context';
+import { ConfigProvider, TimerProvider } from '@context';
+import { ModalProvider } from '@context/ModalProvider';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { HelmetProvider } from 'react-helmet-async';
-import { createHashRouter, RouterProvider } from 'react-router-dom';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { createGlobalStyle } from 'styled-components';
 import './index.css';
 
 const App = React.lazy(() => import('./App'));
 
-const router = createHashRouter([
-  {
-    path: '/',
-    element: <App />,
-    errorElement: <ErrorBoundary />,
-  },
-  {
-    path: '/signup',
-    element: <div>Hello</div>,
-  },
-]);
+const router = createBrowserRouter(
+  [
+    {
+      path: '/',
+      element: <App />,
+      errorElement: <ErrorBoundary />,
+    },
+  ],
+  { basename: '/pomofocus-clone' },
+);
 
 const GlobalStyles = createGlobalStyle`
 *,
@@ -44,12 +44,16 @@ a {
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <GlobalStyles />
-    <TimerProvider>
-      <HelmetProvider>
-        <React.Suspense fallback={<div>Loading...</div>}>
-          <RouterProvider router={router} />
-        </React.Suspense>
-      </HelmetProvider>
-    </TimerProvider>
+    <ConfigProvider>
+      <TimerProvider>
+        <HelmetProvider>
+          <ModalProvider>
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <RouterProvider router={router} />
+            </React.Suspense>
+          </ModalProvider>
+        </HelmetProvider>
+      </TimerProvider>
+    </ConfigProvider>
   </React.StrictMode>,
 );

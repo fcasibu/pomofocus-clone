@@ -1,8 +1,8 @@
-import ClickSound from '@assets/rclick.mp3';
 import { SEO } from '@components/common/';
 import { useTimer } from '@hooks';
 import type { TimerName } from '@types';
 import { colors, media, spacing } from '@utils';
+import { playSound } from '@utils/playAudio';
 import styled, { css } from 'styled-components';
 
 type Tabs = {
@@ -131,7 +131,7 @@ export function Timer() {
   };
 
   const handleClick = () => {
-    new Audio(ClickSound).play();
+    playSound();
     if (isPlaying) {
       pauseTimer();
       return;
@@ -148,6 +148,7 @@ export function Timer() {
         title={title}
         description="Pomofocus is a Pomodoro app with a to-do list that helps you stay focused and get more done in less time. Try it now"
         url="https://fcasibu.github.io/pomofocus-clone"
+        // TODO: change this to a better image
         ogImage="https://picsum.photos/536/354"
       />
       <header>

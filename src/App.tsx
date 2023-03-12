@@ -1,7 +1,7 @@
-import { Timer } from '@components';
-import { Header } from '@components/Header';
+import { Header, Settings, Timer } from '@components';
 import { useTimer } from '@hooks';
-import { Options } from '@options';
+import { useConfig } from '@hooks/useConfig';
+import { useModal } from '@hooks/useModal';
 import { colors, spacing } from '@utils';
 import styled, { ThemeProvider } from 'styled-components';
 
@@ -15,6 +15,7 @@ const S = {
       transition: none;
     }
   `,
+
   Container: styled.div`
     height: 100%;
     margin: 0 auto;
@@ -25,14 +26,17 @@ const S = {
 
 function App() {
   const { currentTimerName } = useTimer();
+  const { openedModal } = useModal();
+  const { theme } = useConfig();
 
   return (
-    <ThemeProvider theme={{ bg: Options.theme.colorThemes[currentTimerName], text: colors.WHITE }}>
+    <ThemeProvider theme={{ bg: theme.colorThemes[currentTimerName], text: colors.WHITE }}>
       <S.Background>
         <S.Container>
           <Header />
           <main>
             <Timer />
+            {openedModal === 'settings' ? <Settings /> : null}
           </main>
         </S.Container>
       </S.Background>
