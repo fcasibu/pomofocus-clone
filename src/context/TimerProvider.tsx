@@ -1,16 +1,18 @@
 import { TIMER_NAME } from '@constants';
-import { Options } from '@options';
+import { useConfig } from '@hooks/useConfig';
 import type { TimerName } from '@types';
-import { padWithZeroes } from '@utils';
+import { padWithZeroes, playSound } from '@utils';
 import type { ReactNode } from 'react';
 import { createContext, useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
+import type { Config } from './ConfigProvider';
 
-const ACTION_TYPES = {
-  START: 'START',
-  PLAYING: 'PLAYING',
-  PAUSE: 'PAUSE',
-  CHANGE: 'CHANGE',
-} as const;
+enum ActionTypes {
+  START = 'START',
+  PLAYING = 'PLAYING',
+  PAUSE = 'PAUSE',
+  CHANGE = 'CHANGE',
+  REFRESH = 'Refresh',
+}
 
 export type TimerState = {
   seconds: number;
@@ -19,11 +21,29 @@ export type TimerState = {
   pomoDone: number;
   isPaused: boolean;
   isPlaying: boolean;
+  longBreakInterval: number;
+  autoStartPomo: boolean;
+  autoStartBreaks: boolean;
 };
 
-export type TimerAction = { type: keyof typeof ACTION_TYPES; payload?: TimerName };
+type ChangeAction = {
+  type: 'CHANGE';
+  payload: TimerName;
+};
 
-type TimerContextType = Omit<TimerState, 'time' | 'seconds'> & {
+type RefreshAction = {
+  type: 'Refresh';
+  payload: Config['timer'];
+};
+
+export type TimerAction =
+  | ChangeAction
+  | RefreshAction
+  | { type: Exclude<ActionTypes, ActionTypes.CHANGE | ActionTypes.REFRESH> };
+
+type PropsToOmit = 'time' | 'seconds' | 'longBreakInterval' | 'autoStartPomo' | 'autoStartBreaks';
+
+type TimerContextType = Omit<TimerState, PropsToOmit> & {
   percentageValue: number;
   currentTime: string;
   startTimer(): void;
@@ -31,51 +51,57 @@ type TimerContextType = Omit<TimerState, 'time' | 'seconds'> & {
   changeCurrentTimer(tabName: TimerName): void;
 };
 
-const reducer = (state: TimerState, action: TimerAction) => {
-  const { timer } = Options;
-
+function reducer(state: TimerState, action: TimerAction) {
   switch (action.type) {
-    case ACTION_TYPES.START: {
+    case ActionTypes.START: {
       return { ...state, isPlaying: true, isPaused: false, seconds: state.seconds };
     }
 
-    case ACTION_TYPES.PLAYING: {
-      const isPomoFinished = state.seconds === state.time.POMO;
-      const isBreakFinished = state.seconds === state.time[state.currentTimerName];
-      const isLongBreakIntervalFulfilled = (state.pomoDone + 1) % timer.longBreakInterval === 0;
+    case ActionTypes.PLAYING: {
+      const isTimerFinished = state.seconds === state.time[state.currentTimerName];
+      const isPomoFinished = isTimerFinished && state.currentTimerName === 'POMO';
+      const isShortBreakFinished = isTimerFinished && state.currentTimerName === 'SHORT';
+      const isLongBreakFinished = isTimerFinished && state.currentTimerName === 'LONG';
+      const isLongBreak = (state.pomoDone + 1) % state.longBreakInterval === 0;
 
-      if (isPomoFinished && isLongBreakIntervalFulfilled) {
-        return {
-          ...state,
-          currentTimerName: TIMER_NAME.LONG,
-          isPlaying: false,
-          seconds: 0,
-          pomoDone: state.pomoDone + 1,
-        };
-      }
+      const newState = {
+        ...state,
+        isPlaying: state.autoStartBreaks,
+        seconds: 0,
+        pomoDone: state.pomoDone + 1,
+      };
 
       if (isPomoFinished) {
-        return {
-          ...state,
-          currentTimerName: TIMER_NAME.SHORT,
-          isPlaying: false,
-          seconds: 0,
-          pomoDone: state.pomoDone + 1,
-        };
+        playSound();
+        return isLongBreak
+          ? {
+              ...newState,
+              currentTimerName: TIMER_NAME.LONG,
+            }
+          : {
+              ...newState,
+              currentTimerName: TIMER_NAME.SHORT,
+            };
       }
 
-      if (isBreakFinished) {
-        return { ...state, currentTimerName: TIMER_NAME.POMO, isPlaying: false, seconds: 0 };
+      if (isShortBreakFinished || isLongBreakFinished) {
+        playSound();
+        return {
+          ...newState,
+          currentTimerName: TIMER_NAME.POMO,
+          isPlaying: state.autoStartPomo,
+          pomoDone: state.pomoDone,
+        };
       }
 
       return { ...state, seconds: state.seconds + 1 };
     }
 
-    case ACTION_TYPES.PAUSE: {
+    case ActionTypes.PAUSE: {
       return { ...state, isPaused: true, isPlaying: false };
     }
 
-    case ACTION_TYPES.CHANGE: {
+    case ActionTypes.CHANGE: {
       if (state.isPlaying) {
         const isOK = confirm('Timer is current playing are you sure?');
 
@@ -85,39 +111,53 @@ const reducer = (state: TimerState, action: TimerAction) => {
       }
       return {
         ...state,
-        currentTimerName: action.payload as TimerName,
+        currentTimerName: action.payload,
         seconds: 0,
         isPaused: false,
         isPlaying: false,
       };
     }
 
+    case ActionTypes.REFRESH: {
+      const timer = action.payload;
+      return { ...state, ...timer, seconds: 0, isPaused: false, isPlaying: false };
+    }
+
     default: {
       throw new Error(`Unexpected action type: ${action.type}`);
     }
   }
-};
+}
 
 export const TimerContext = createContext<TimerContextType | null>(null);
 
 export function TimerProvider({ children }: { children: ReactNode }) {
+  const { timer } = useConfig();
   // Time is in Seconds
   const [state, dispatch] = useReducer(reducer, {
     seconds: 0,
-    time: Options.timer.time,
+    time: timer.time,
     currentTimerName: TIMER_NAME.POMO,
     pomoDone: 0,
     isPaused: false,
     isPlaying: false,
+    longBreakInterval: timer.longBreakInterval,
+    autoStartPomo: timer.autoStartPomo,
+    autoStartBreaks: timer.autoStartBreaks,
   });
+
   const timeout = useRef(0);
+
+  useEffect(() => {
+    dispatch({ type: ActionTypes.REFRESH, payload: timer });
+  }, [timer]);
 
   useEffect(() => {
     const ONE_SECOND = 1000;
 
     if (state.isPlaying) {
       timeout.current = setInterval(() => {
-        dispatch({ type: 'PLAYING' });
+        dispatch({ type: ActionTypes.PLAYING });
       }, ONE_SECOND);
     }
 
@@ -127,31 +167,25 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   }, [state.isPlaying]);
 
   const startTimer = useCallback(() => {
-    dispatch({ type: 'START' });
+    dispatch({ type: ActionTypes.START });
   }, [dispatch]);
 
   const pauseTimer = useCallback(() => {
-    dispatch({ type: 'PAUSE' });
+    dispatch({ type: ActionTypes.PAUSE });
     clearTimeout(timeout.current);
   }, [dispatch]);
 
   const changeCurrentTimer = useCallback(
     (tabName: TimerName) => {
-      dispatch({ type: 'CHANGE', payload: tabName });
+      dispatch({ type: ActionTypes.CHANGE, payload: tabName });
     },
     [dispatch],
   );
 
-  const currentTime = useMemo(() => {
-    const minutes = padWithZeroes(Math.floor((state.time[state.currentTimerName] - state.seconds) / 60));
-    const seconds =
-      minutes !== '00'
-        ? padWithZeroes(Math.abs((state.seconds % 60) - 60))
-        : padWithZeroes(state.time[state.currentTimerName] - state.seconds);
-
-    return seconds !== '60' ? `${minutes}:${seconds}` : `${minutes}:00`;
-  }, [state.currentTimerName, state.seconds]);
-
+  const time = state.time[state.currentTimerName] - state.seconds;
+  const minutes = Math.floor(time / 60);
+  const seconds = Math.floor(time % 60);
+  const currentTime = `${padWithZeroes(minutes)}:${padWithZeroes(seconds)}`;
   const percentageValue = (state.seconds / state.time[state.currentTimerName]) * 100;
 
   const values = useMemo(
@@ -167,8 +201,8 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       changeCurrentTimer,
     }),
     [
-      currentTime,
       percentageValue,
+      currentTime,
       state.currentTimerName,
       state.pomoDone,
       state.isPaused,
