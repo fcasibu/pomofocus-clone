@@ -1,4 +1,6 @@
+import type { ModalType } from '@context';
 import { useTimer } from '@hooks';
+import { useModal } from '@hooks/useModal';
 import { colors, media, spacing } from '@utils';
 import { FaChartBar, FaCheckCircle, FaCog, FaUserAlt } from 'react-icons/fa';
 import type { IconType } from 'react-icons/lib';
@@ -9,6 +11,7 @@ type Links = {
   icon: IconType;
   name: string;
   href?: string;
+  modalName?: ModalType;
 };
 
 const S = {
@@ -120,6 +123,7 @@ const links: Links[] = [
   {
     icon: FaCog,
     name: 'Setting',
+    modalName: 'settings',
   },
   {
     icon: FaUserAlt,
@@ -129,10 +133,17 @@ const links: Links[] = [
 ];
 
 function NavigationBar() {
+  const { open } = useModal();
+
+  const handleOpenModal = (modalName?: ModalType) => () => {
+    if (!modalName) return;
+    open(modalName);
+  };
+
   return (
     <nav>
       <S.Links>
-        {links.map(({ name, href, icon: Icon }, index) => (
+        {links.map(({ name, href, icon: Icon, modalName }, index) => (
           <S.Link key={`${name}-${index}`}>
             {href ? (
               /* Refactor aria-label after authentication is implemented */
@@ -141,7 +152,7 @@ function NavigationBar() {
                 <span>{name}</span>
               </Link>
             ) : (
-              <button type="button" aria-label={`Open ${name}`}>
+              <button type="button" aria-label={`Open ${name}`} onClick={handleOpenModal(modalName)}>
                 <Icon size={14} />
                 <span>{name}</span>
               </button>
