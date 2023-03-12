@@ -49,13 +49,7 @@ module.exports = {
     '@typescript-eslint/no-empty-function': 0,
     'no-use-before-define': 0,
     '@typescript-eslint/no-use-before-define': [2, { functions: false }],
-    '@typescript-eslint/consistent-type-imports': [
-      2,
-      {
-        prefer: 'type-imports',
-        disallowTypeAnnotations: true,
-      },
-    ],
+    '@typescript-eslint/consistent-type-imports': 'error',
     'import/prefer-default-export': 0,
     'import/extensions': 0,
     'comma-dangle': [2, 'always-multiline'],
