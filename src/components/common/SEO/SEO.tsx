@@ -16,11 +16,12 @@ export function SEO({
   ogTitle = 'Pomofocus | An Online Pomodoro App',
   ogImage,
 }: SEOProps) {
+  document.title = title;
+
   return (
     <Helmet>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <meta name="description" content={description} />
-      <title>{title}</title>
       <meta property="og:title" content={ogTitle ?? title} />
       <meta property="og:description" content={description} />
       <meta property="og:type" content="website" />
