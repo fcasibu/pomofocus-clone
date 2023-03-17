@@ -2,7 +2,7 @@ import { SEO } from '@components/common/';
 import { useTimer } from '@hooks';
 import type { TimerName } from '@types';
 import { colors, media, spacing } from '@utils';
-import { playSound } from '@utils/playAudio';
+import { playAudio } from '@utils/playAudio';
 import styled, { css } from 'styled-components';
 
 type Tabs = {
@@ -72,6 +72,7 @@ const S = {
 
     > button {
       background: none;
+      color: ${colors.WHITE};
       border: none;
       cursor: pointer;
       font-size: 16px;
@@ -98,7 +99,7 @@ const S = {
     font-size: 72px;
     font-weight: 700;
 
-    @media ${media.greaterThan('sm')} {
+    @media ${media.greaterThan('lg')} {
       font-size: 102px;
     }
   `,
@@ -131,7 +132,7 @@ export function Timer() {
   };
 
   const handleClick = () => {
-    playSound();
+    playAudio();
     if (isPlaying) {
       pauseTimer();
       return;
