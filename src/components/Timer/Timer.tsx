@@ -72,8 +72,8 @@ const S = {
 
     > button {
       background: none;
-      color: ${colors.WHITE};
       border: none;
+      color: ${colors.WHITE};
       cursor: pointer;
       font-size: 16px;
       font-weight: ${({ $isSelected }) => ($isSelected ? '600' : 'unset')};

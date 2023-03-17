@@ -1,4 +1,4 @@
-import { Header, Settings, Timer } from '@components';
+import { Header, Modal, Settings, Timer } from '@components';
 import { useTimer } from '@hooks';
 import { useConfig } from '@hooks/useConfig';
 import { useModal } from '@hooks/useModal';
@@ -36,7 +36,11 @@ function App() {
           <Header />
           <main>
             <Timer />
-            {openedModal === 'settings' ? <Settings /> : null}
+            {openedModal === 'settings' ? (
+              <Modal>
+                <Settings />
+              </Modal>
+            ) : null}
           </main>
         </S.Container>
       </S.Background>

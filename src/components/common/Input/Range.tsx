@@ -28,12 +28,11 @@ const S = {
 
   Input: styled.input`
     appearance: none;
-    -webkit-appearance: none;
+    background: ${colors.LIGHTER_GREY};
     border-radius: 9999px;
+    cursor: pointer;
     height: 6px;
     width: 100%;
-    background: ${colors.LIGHTER_GREY};
-    cursor: pointer;
   `,
 };
 
