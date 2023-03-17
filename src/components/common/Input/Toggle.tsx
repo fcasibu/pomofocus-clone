@@ -6,7 +6,7 @@ import type { Control } from 'react-hook-form';
 import { useController } from 'react-hook-form';
 import styled from 'styled-components';
 
-interface ToggleProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface ToggleProps extends InputHTMLAttributes<HTMLInputElement> {
   control: Control<Config>;
   name: ConfigKeys;
   label?: string;
@@ -66,8 +66,8 @@ const S = {
 
 export const Toggle = ({ control, name, label, ...props }: ToggleProps) => {
   const { field } = useController({
-    control: control,
-    name: name,
+    control,
+    name,
   });
   const ref = useRef<HTMLLabelElement | null>(null);
   const [isChecked, setIsChecked] = useState(field.value as boolean);
@@ -98,12 +98,10 @@ export const Toggle = ({ control, name, label, ...props }: ToggleProps) => {
         ref={ref}
       >
         <S.Toggle type="checkbox" checked={isChecked} onChange={handleToggle} {...props} />
-        <div></div>
+        <div />
       </S.Label>
     </S.Container>
   );
 };
-
-Toggle.displayName = 'Toggle';
 
 export default Toggle;
