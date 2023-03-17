@@ -3,6 +3,7 @@ import { useTimer } from '@hooks';
 import type { TimerName } from '@types';
 import { colors, media, spacing } from '@utils';
 import { playAudio } from '@utils/playAudio';
+import { FaStepForward } from 'react-icons/fa';
 import styled, { css } from 'styled-components';
 
 type Tabs = {
@@ -55,6 +56,20 @@ const S = {
     place-items: center;
   `,
 
+  ForwardButton: styled.button<{ $isPlaying: boolean }>`
+    all: unset;
+    cursor: pointer;
+    opacity: ${({ $isPlaying }) => ($isPlaying ? 1 : 0)};
+    position: absolute;
+    right: ${spacing.XL};
+    transition: opacity 0.3s;
+    visibility: ${({ $isPlaying }) => ($isPlaying ? 'visible' : 'hidden')};
+
+    &:hover {
+      opacity: ${({ $isPlaying }) => ($isPlaying ? 0.8 : 0)};
+    }
+  `,
+
   Tabs: styled.ul`
     align-items: center;
     display: flex;
@@ -103,6 +118,14 @@ const S = {
       font-size: 102px;
     }
   `,
+
+  Controls: styled.div`
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+  `,
 };
 
 const tabs: Tabs[] = [
@@ -124,7 +147,8 @@ const tabs: Tabs[] = [
 ];
 
 export function Timer() {
-  const { startTimer, pauseTimer, isPlaying, currentTimerName, currentTime, changeCurrentTimer } = useTimer();
+  const { startTimer, pauseTimer, changeCurrentTimer, forwardTimer, isPlaying, currentTimerName, currentTime } =
+    useTimer();
 
   const handleTabChange = (tabName: TimerName) => () => {
     if (currentTimerName === tabName) return;
@@ -142,6 +166,8 @@ export function Timer() {
   };
 
   const title = currentTimerName === 'POMO' ? `${currentTime} | Time to focus!` : `${currentTime} | Time for a break!`;
+
+  console.log(isPlaying);
 
   return (
     <S.Container>
@@ -165,9 +191,14 @@ export function Timer() {
         </S.Tabs>
       </header>
       <S.Time>{currentTime}</S.Time>
-      <S.Button type="button" $isPlaying={isPlaying} onClick={handleClick}>
-        {isPlaying ? 'Pause' : 'Start'}
-      </S.Button>
+      <S.Controls>
+        <S.Button type="button" $isPlaying={isPlaying} onClick={handleClick}>
+          {isPlaying ? 'Pause' : 'Start'}
+        </S.Button>
+        <S.ForwardButton type="button" $isPlaying={isPlaying} onClick={forwardTimer}>
+          <FaStepForward size={30} />
+        </S.ForwardButton>
+      </S.Controls>
     </S.Container>
   );
 }
