@@ -65,6 +65,14 @@ const S = {
     transition: opacity 0.3s;
     visibility: ${({ $isPlaying }) => ($isPlaying ? 'visible' : 'hidden')};
 
+    &:focus-visible {
+      outline: auto;
+    }
+
+    &:active {
+      transform: scaleY(0.98) translateY(2px);
+    }
+
     &:hover {
       opacity: ${({ $isPlaying }) => ($isPlaying ? 0.8 : 0)};
     }
@@ -195,7 +203,7 @@ export function Timer() {
         <S.Button type="button" $isPlaying={isPlaying} onClick={handleClick}>
           {isPlaying ? 'Pause' : 'Start'}
         </S.Button>
-        <S.ForwardButton type="button" $isPlaying={isPlaying} onClick={forwardTimer}>
+        <S.ForwardButton type="button" $isPlaying={isPlaying} onClick={forwardTimer} aria-label="Skip Forward">
           <FaStepForward size={30} />
         </S.ForwardButton>
       </S.Controls>
