@@ -11,6 +11,7 @@ enum ActionTypes {
   START = 'START',
   PLAYING = 'PLAYING',
   PAUSE = 'PAUSE',
+  FORWARD = 'FORWARD',
   CHANGE = 'CHANGE',
   REFRESH = 'REFRESH',
 }
@@ -33,15 +34,25 @@ type PlayingAction = {
   payload: Omit<Config, 'theme' | 'others'>;
 };
 
-type ActionsToExclude = ActionTypes.CHANGE | ActionTypes.PLAYING;
+type ForwardAction = {
+  type: 'FORWARD';
+  payload: Config['timer'];
+};
 
-export type TimerAction = ChangeAction | PlayingAction | { type: Exclude<ActionTypes, ActionsToExclude> };
+type ActionsToExclude = ActionTypes.CHANGE | ActionTypes.PLAYING | ActionTypes.FORWARD;
+
+export type TimerAction =
+  | ChangeAction
+  | PlayingAction
+  | ForwardAction
+  | { type: Exclude<ActionTypes, ActionsToExclude> };
 
 type TimerContextType = Omit<TimerState, 'seconds'> & {
   percentageValue: number;
   currentTime: string;
   startTimer(): void;
   pauseTimer(): void;
+  forwardTimer(): void;
   changeCurrentTimer(tabName: TimerName): void;
 };
 
@@ -112,6 +123,23 @@ const reducer = produce((state: TimerState, action: TimerAction) => {
       break;
     }
 
+    case ActionTypes.FORWARD: {
+      const { longBreakInterval, autoStartBreaks, autoStartPomo } = action.payload;
+      const isLongBreak = (state.pomoDone + 1) % longBreakInterval === 0;
+      state.seconds = 0;
+
+      if (state.currentTimerName === TIMER_NAME.POMO) {
+        state.pomoDone++;
+        state.isPlaying = autoStartBreaks;
+        state.currentTimerName = isLongBreak ? TIMER_NAME.LONG : TIMER_NAME.SHORT;
+      } else {
+        state.isPlaying = autoStartPomo;
+        state.currentTimerName = TIMER_NAME.POMO;
+      }
+
+      break;
+    }
+
     default: {
       throw new Error(`Unexpected action type: ${action.type}`);
     }
@@ -160,6 +188,10 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     clearTimeout(timeout.current);
   }, [dispatch]);
 
+  const forwardTimer = useCallback(() => {
+    dispatch({ type: ActionTypes.FORWARD, payload: timer });
+  }, [dispatch, timer]);
+
   const changeCurrentTimer = useCallback(
     (tabName: TimerName) => {
       dispatch({ type: ActionTypes.CHANGE, payload: tabName });
@@ -183,6 +215,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       percentageValue,
       startTimer,
       pauseTimer,
+      forwardTimer,
       changeCurrentTimer,
     }),
     [
@@ -194,6 +227,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       state.isPlaying,
       startTimer,
       pauseTimer,
+      forwardTimer,
       changeCurrentTimer,
     ],
   );
