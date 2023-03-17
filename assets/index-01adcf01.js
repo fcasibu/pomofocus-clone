@@ -457,6 +457,14 @@ Error generating stack: `+o.message+`
     transition: opacity 0.3s;
     visibility: ${({$isPlaying:e})=>e?"visible":"hidden"};
 
+    &:focus-visible {
+      outline: auto;
+    }
+
+    &:active {
+      transform: scaleY(0.98) translateY(2px);
+    }
+
     &:hover {
       opacity: ${({$isPlaying:e})=>e?.8:0};
     }
@@ -509,7 +517,7 @@ Error generating stack: `+o.message+`
     justify-content: center;
     position: relative;
     width: 100%;
-  `},UC=[{name:"POMO",short:"Pomo",long:"Pomodoro"},{name:"SHORT",short:"Short",long:"Short Break"},{name:"LONG",short:"Long",long:"Long Break"}];function YC(){const{startTimer:e,pauseTimer:t,changeCurrentTimer:r,forwardTimer:n,isPlaying:i,currentTimerName:o,currentTime:l}=dv(),a=c=>()=>{o!==c&&r(c)},s=()=>{if(go(),i){t();return}e()},u=o==="POMO"?`${l} | Time to focus!`:`${l} | Time for a break!`;return console.log(i),$e(cn.Container,{children:[I(jC,{title:u,description:"Pomofocus is a Pomodoro app with a to-do list that helps you stay focused and get more done in less time. Try it now",url:"https://fcasibu.github.io/pomofocus-clone",ogImage:"https://picsum.photos/536/354"}),I("header",{children:I(cn.Tabs,{children:UC.map(({name:c,short:f,long:d})=>I(cn.Tab,{$isSelected:c===o,children:$e("button",{type:"button",onClick:a(c),children:[I("span",{className:"tab-short",children:f}),I("span",{className:"tab-long",children:d})]})},c))})}),I(cn.Time,{children:l}),$e(cn.Controls,{children:[I(cn.Button,{type:"button",$isPlaying:i,onClick:s,children:i?"Pause":"Start"}),I(cn.ForwardButton,{type:"button",$isPlaying:i,onClick:n,children:I(wx,{size:30})})]})]})}var qc={},cm=fa;qc.createRoot=cm.createRoot,qc.hydrateRoot=cm.hydrateRoot;const BC=ue.lazy(()=>hg(()=>import("./App-6b335d62.js"),[])),VC=_x([{path:"/",element:I(BC,{}),errorElement:I(sS,{})}],{basename:"/pomofocus-clone"}),HC=lS`
+  `},UC=[{name:"POMO",short:"Pomo",long:"Pomodoro"},{name:"SHORT",short:"Short",long:"Short Break"},{name:"LONG",short:"Long",long:"Long Break"}];function YC(){const{startTimer:e,pauseTimer:t,changeCurrentTimer:r,forwardTimer:n,isPlaying:i,currentTimerName:o,currentTime:l}=dv(),a=c=>()=>{o!==c&&r(c)},s=()=>{if(go(),i){t();return}e()},u=o==="POMO"?`${l} | Time to focus!`:`${l} | Time for a break!`;return console.log(i),$e(cn.Container,{children:[I(jC,{title:u,description:"Pomofocus is a Pomodoro app with a to-do list that helps you stay focused and get more done in less time. Try it now",url:"https://fcasibu.github.io/pomofocus-clone",ogImage:"https://picsum.photos/536/354"}),I("header",{children:I(cn.Tabs,{children:UC.map(({name:c,short:f,long:d})=>I(cn.Tab,{$isSelected:c===o,children:$e("button",{type:"button",onClick:a(c),children:[I("span",{className:"tab-short",children:f}),I("span",{className:"tab-long",children:d})]})},c))})}),I(cn.Time,{children:l}),$e(cn.Controls,{children:[I(cn.Button,{type:"button",$isPlaying:i,onClick:s,children:i?"Pause":"Start"}),I(cn.ForwardButton,{type:"button",$isPlaying:i,onClick:n,"aria-label":"Skip Forward",children:I(wx,{size:30})})]})]})}var qc={},cm=fa;qc.createRoot=cm.createRoot,qc.hydrateRoot=cm.hydrateRoot;const BC=ue.lazy(()=>hg(()=>import("./App-7442758b.js"),[])),VC=_x([{path:"/",element:I(BC,{}),errorElement:I(sS,{})}],{basename:"/pomofocus-clone"}),HC=lS`
 *,
 *::before,
 *::after {
