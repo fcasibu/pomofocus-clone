@@ -1,13 +1,43 @@
-import ClickSound from '@assets/rclick.mp3';
+import { ClickSound } from '@assets';
 
-export function playSound(sound = ClickSound) {
-  const audio = new Audio(sound);
+const audioMap = new Map();
 
-  audio.currentTime = 0;
-  audio.play();
+export async function playAudio(soundFile = ClickSound, gain = 0.5) {
+  let buffer: AudioBuffer;
+  const audioContext = new AudioContext();
 
-  audio.onended = () => {
-    audio.pause();
-    audio.remove();
-  };
+  try {
+    if (audioMap.has(soundFile)) {
+      buffer = audioMap.get(soundFile);
+    } else {
+      const response = await fetch(soundFile);
+
+      if (!response.ok) {
+        throw new Error('Unable to fetch sound file');
+      }
+
+      const arrayBuffer = await response.arrayBuffer();
+
+      buffer = await audioContext.decodeAudioData(arrayBuffer);
+      audioMap.set(soundFile, buffer);
+    }
+
+    const source = audioContext.createBufferSource();
+    const gainNode = audioContext.createGain();
+    source.buffer = buffer;
+    gainNode.gain.value = gain;
+    gainNode.connect(audioContext.destination);
+    source.connect(gainNode);
+    source.start();
+
+    source.onended = () => {
+      gainNode.disconnect();
+      source.disconnect();
+      source.buffer = null;
+      source.onended = null;
+      audioContext.close();
+    };
+  } catch (e) {
+    console.error(e);
+  }
 }
