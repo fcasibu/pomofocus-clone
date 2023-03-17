@@ -1,3 +1,3 @@
 export * from './Input';
-export * from './Input/Toggle';
+export * from './Modal';
 export * from './SEO';
