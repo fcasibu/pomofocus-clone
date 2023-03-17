@@ -36,6 +36,10 @@ html,
   height: 100%;
 }
 
+body {
+  overflow: auto;
+}
+
 a {
   text-decoration: none;
 }

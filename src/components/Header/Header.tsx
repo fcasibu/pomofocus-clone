@@ -57,8 +57,8 @@ const S = {
 
     > button {
       background: none;
-      color: ${colors.WHITE};
       border: none;
+      color: ${colors.WHITE};
       cursor: pointer;
       padding: ${spacing.XXXS} ${spacing.XXS};
     }

@@ -1,12 +1,12 @@
-import { Input, Toggle } from '@components';
+import { Alarm_Analog, Alarm_Bell_1, Alarm_Bell_2 } from '@assets';
+import { Input, Range, Select, Toggle } from '@components';
 import type { Config } from '@context';
-import { configSchema } from '@context';
+import { configSchema, initialState } from '@context';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useConfig } from '@hooks/useConfig';
 import { useModal } from '@hooks/useModal';
-import { colors, spacing, zSettingsBackdrop, zSettingsModal } from '@utils';
+import { colors, spacing, zSettingsModal } from '@utils';
 import type { ReactNode } from 'react';
-import { createPortal } from 'react-dom';
 import FocusLock from 'react-focus-lock';
 import { useForm } from 'react-hook-form';
 import { FaRegClock } from 'react-icons/fa';
@@ -14,16 +14,6 @@ import { VscClose } from 'react-icons/vsc';
 import styled from 'styled-components';
 
 const S = {
-  Backdrop: styled.div`
-    background-color: hsl(0 0% 0% / 0.4);
-    height: 100%;
-    left: 0;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: ${zSettingsBackdrop};
-  `,
-
   Container: styled.div`
     background-color: ${colors.WHITE};
     border-radius: 5px;
@@ -38,6 +28,25 @@ const S = {
     transform: translate(-50%, -50%);
     width: 80%;
     z-index: ${zSettingsModal};
+  `,
+
+  Colors: styled.ul`
+    display: flex;
+    gap: ${spacing.XXXS};
+    margin: 0;
+  `,
+
+  Color: styled.button<{ $color: string }>`
+    all: unset;
+    background-color: ${({ $color }) => $color};
+    border-radius: 50%;
+    cursor: pointer;
+    height: 25px;
+    width: 25px;
+
+    &:focus-visible {
+      outline: auto;
+    }
   `,
 
   Control: styled.div`
@@ -123,6 +132,13 @@ const S = {
     }
   `,
 
+  Row: styled.div`
+    align-items: flex-end;
+    display: flex;
+    flex-direction: column;
+    gap: ${spacing.XS};
+  `,
+
   Setting: styled.div`
     padding: ${spacing.M} 0;
 
@@ -155,8 +171,6 @@ const S = {
   `,
 };
 
-const modalRoot = document.getElementById('settings-modal-root') as HTMLDivElement;
-
 function Setting({ title, children }: { title: string; children: ReactNode }) {
   return (
     <S.Setting>
@@ -171,7 +185,7 @@ function Setting({ title, children }: { title: string; children: ReactNode }) {
 
 export function Settings() {
   const { close } = useModal();
-  const { configure, timer } = useConfig();
+  const { configure, timer, sound, theme, others } = useConfig();
   const {
     register,
     handleSubmit,
@@ -179,27 +193,35 @@ export function Settings() {
     control,
   } = useForm<Config>({
     defaultValues: {
+      ...initialState,
       timer: {
+        ...timer,
         time: {
           POMO: timer.time.POMO / 60,
           SHORT: timer.time.SHORT / 60,
           LONG: timer.time.LONG / 60,
         },
-        longBreakInterval: timer.longBreakInterval,
-        autoStartBreaks: timer.autoStartBreaks,
-        autoStartPomo: timer.autoStartPomo,
+      },
+      sound: {
+        ...sound,
+      },
+      theme: {
+        ...theme,
+      },
+      others: {
+        ...others,
       },
     },
     resolver: yupResolver(configSchema),
   });
 
-  const onSubmit = (data: Config) => {
+  const onSubmit = (newConfig: Config) => {
     if (!isDirty) {
       close();
       return;
     }
 
-    configure(data);
+    configure(newConfig);
     close();
   };
 
@@ -208,84 +230,139 @@ export function Settings() {
     setValueAs: (v: any) => (Math.round(v * 100) / 100) * 60,
   };
 
-  return createPortal(
-    <>
-      <S.Backdrop onClick={close} />
-      <FocusLock>
-        <S.Container aria-labelledby="settings-modal-label" role="dialog" aria-modal="true">
-          <S.Header>
-            <h2 id="settings-modal-label">Settings</h2>
-            <button type="button" onClick={close} aria-label="Close Settings">
-              <VscClose size={20} />
+  return (
+    <FocusLock>
+      <S.Container aria-labelledby="settings-modal-label" role="dialog" aria-modal="true">
+        <S.Header>
+          <h2 id="settings-modal-label">Settings</h2>
+          <button type="button" onClick={close} aria-label="Close Settings">
+            <VscClose size={20} />
+          </button>
+        </S.Header>
+        <S.SettingsForm onSubmit={handleSubmit(onSubmit)}>
+          <Setting title="Timer">
+            <span>Time (minutes)</span>
+            <S.SettingContainer>
+              <Input
+                {...register('timer.time.POMO', timerOptions)}
+                label="Pomodoro"
+                id="settings-timer-pomodoro"
+                type="number"
+                step="any"
+              />
+              <Input
+                {...register('timer.time.SHORT', timerOptions)}
+                label="Short Break"
+                id="settings-timer-short"
+                type="number"
+                step="any"
+              />
+              <Input
+                {...register('timer.time.LONG', timerOptions)}
+                label="Long Break"
+                id="settings-timer-long"
+                type="number"
+                step="any"
+              />
+            </S.SettingContainer>
+            <S.SettingContainer>
+              <label htmlFor="settings-timer-autoStartPomo">Auto Start Pomodoros</label>
+              <Toggle
+                control={control}
+                name="timer.autoStartPomo"
+                id="settings-timer-autoStartPomo"
+                label="Auto Start Pomodoros"
+              />
+            </S.SettingContainer>
+            <S.SettingContainer>
+              <label htmlFor="settings-timer-autoStartBreaks">Auto Start Breaks</label>
+              <Toggle
+                control={control}
+                name="timer.autoStartBreaks"
+                id="settings-timer-autoStartBreaks"
+                label="Auto Start Breaks"
+              />
+            </S.SettingContainer>
+            <S.SettingContainer>
+              <label htmlFor="settings-timer-longBreakInterval">Long Break Interval</label>
+              <Input
+                {...register('timer.longBreakInterval', {
+                  valueAsNumber: true,
+                })}
+                id="settings-timer-longBreakInterval"
+                type="number"
+                step="1"
+              />
+            </S.SettingContainer>
+          </Setting>
+          <Setting title="Sound">
+            <S.SettingContainer>
+              <label htmlFor="settings-sound-alarmSound">Alarm Sound</label>
+              <S.Row>
+                <Select
+                  control={control}
+                  name="sound.alarm.sound"
+                  id="settings-sound-alarmSound"
+                  label="Alarm Sound"
+                  isAudio
+                >
+                  {/* TODO: Refactor */}
+                  {[
+                    {
+                      soundName: 'Analog',
+                      value: Alarm_Analog,
+                    },
+                    {
+                      soundName: 'Bell 1',
+                      value: Alarm_Bell_1,
+                    },
+                    {
+                      soundName: 'Bell 2',
+                      value: Alarm_Bell_2,
+                    },
+                  ].map(({ value, soundName }, index) => (
+                    <option key={`${soundName}-${index}`} value={value}>
+                      {soundName}
+                    </option>
+                  ))}
+                </Select>
+                <Range control={control} name="sound.alarm.gain" label="Alarm Sound" />
+              </S.Row>
+            </S.SettingContainer>
+          </Setting>
+          <Setting title="Theme">
+            <S.SettingContainer>
+              <label htmlFor="settings-theme-colorThemes">Color Themes</label>
+              {/* TODO: Refactor to a ColorSwitcher component */}
+              <S.Colors role="dialog" id="settings-theme-colorThemes">
+                {Object.entries(theme.colorThemes).map(([key, value], index) => (
+                  <S.Color $color={value} key={`${key}-${index}`} type="button" aria-label={`Open modal for ${key}`} />
+                ))}
+              </S.Colors>
+            </S.SettingContainer>
+            <S.SettingContainer>
+              <label htmlFor="settings-theme-hourFormat">Hour Format</label>
+              <Select control={control} name="theme.hourFormat" id="settings-theme-hourFormat" label="Hour Format">
+                {/* TODO: Refactor */}
+                {[
+                  { value: 12, name: '12-hour' },
+                  { value: 24, name: '24-hour' },
+                ].map(({ value, name }, index) => (
+                  <option key={`${name}-${index}`} value={value}>
+                    {name}
+                  </option>
+                ))}
+              </Select>
+            </S.SettingContainer>
+          </Setting>
+          <S.Footer>
+            <button type="submit" disabled={!isValid}>
+              Ok
             </button>
-          </S.Header>
-          <S.SettingsForm onSubmit={handleSubmit(onSubmit)}>
-            <Setting title="Timer">
-              <span>Time (minutes)</span>
-              <S.SettingContainer>
-                <Input
-                  {...register('timer.time.POMO', timerOptions)}
-                  label="Pomodoro"
-                  id="settings-timer-pomodoro"
-                  type="number"
-                  step="any"
-                />
-                <Input
-                  {...register('timer.time.SHORT', timerOptions)}
-                  label="Short Break"
-                  id="settings-timer-short"
-                  type="number"
-                  step="any"
-                />
-                <Input
-                  {...register('timer.time.LONG', timerOptions)}
-                  label="Long Break"
-                  id="settings-timer-long"
-                  type="number"
-                  step="any"
-                />
-              </S.SettingContainer>
-              <S.SettingContainer>
-                <label htmlFor="settings-timer-autoStartPomo">Auto Start Pomodoros</label>
-                <Toggle
-                  control={control}
-                  name="timer.autoStartPomo"
-                  id="settings-timer-autoStartPomo"
-                  label="Auto Start Pomodoros"
-                />
-              </S.SettingContainer>
-              <S.SettingContainer>
-                <label htmlFor="settings-timer-autoStartBreaks">Auto Start Breaks</label>
-                <Toggle
-                  control={control}
-                  name="timer.autoStartBreaks"
-                  id="settings-timer-autoStartBreaks"
-                  label="Auto Start Breaks"
-                />
-              </S.SettingContainer>
-              <S.SettingContainer>
-                <label htmlFor="settings-timer-longBreakInterval">Long Break Interval</label>
-                <Input
-                  {...register('timer.longBreakInterval', {
-                    valueAsNumber: true,
-                  })}
-                  id="settings-timer-longBreakInterval"
-                  type="number"
-                  step="1"
-                />
-              </S.SettingContainer>
-            </Setting>
-            <Setting title="LOL">LOl</Setting>
-            <S.Footer>
-              <button type="submit" disabled={!isValid}>
-                Ok
-              </button>
-            </S.Footer>
-          </S.SettingsForm>
-        </S.Container>
-      </FocusLock>
-    </>,
-    modalRoot,
+          </S.Footer>
+        </S.SettingsForm>
+      </S.Container>
+    </FocusLock>
   );
 }
 

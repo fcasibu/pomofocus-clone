@@ -5,7 +5,7 @@ export type ModalType = 'settings' | 'closed';
 
 type ModalContextType = {
   openedModal: ModalType;
-  open: (modal: Exclude<ModalType, 'closed'>) => void;
+  open: (modal: ModalType) => void;
   close: () => void;
 };
 
@@ -14,8 +14,8 @@ export const ModalContext = createContext<ModalContextType | null>(null);
 export function ModalProvider({ children }: { children: ReactNode }) {
   const [openedModal, setOpenedModal] = useState<ModalType>('closed');
 
-  const open = useCallback((modal: Exclude<ModalType, 'closed'>) => {
-    setOpenedModal(modal as ModalType);
+  const open = useCallback((modal: ModalType) => {
+    setOpenedModal(modal);
     document.body.style.overflow = 'hidden';
   }, []);
 
