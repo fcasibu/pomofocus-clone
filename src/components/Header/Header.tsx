@@ -32,6 +32,10 @@ const S = {
       position: absolute;
       transition: width 0.5s;
       width: ${({ $count }) => `${$count}%`};
+
+      @media (prefers-reduced-motion) {
+        transition: none;
+      }
     }
   `,
 
@@ -53,6 +57,7 @@ const S = {
 
     > button {
       background: none;
+      color: ${colors.WHITE};
       border: none;
       cursor: pointer;
       padding: ${spacing.XXXS} ${spacing.XXS};
