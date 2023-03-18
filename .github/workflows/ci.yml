@@ -57,19 +57,3 @@ jobs:
         run: lhci autorun
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
-
-  deploy:
-    if: github.event.pull_request.merged == true
-    name: Deploy
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.sha }}
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: production-files
-          path: ./dist
