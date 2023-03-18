@@ -240,7 +240,6 @@ export function Timer() {
           aria-label="Skip Forward"
         >
           <FaStepForward size={30} />
-          test testest
         </S.ForwardButton>
       </S.Controls>
     </S.Container>
