@@ -1,0 +1,16 @@
+{
+  "ci": {
+    "collect": {
+      "url": ["http://localhost:8080/pomofocus-clone/"],
+      "numberOfRuns": 3,
+      "startServerCommand": "npm run preview",
+      "settings": {
+        "preset": "desktop"
+      }
+    },
+    "upload": {
+      "target": "temporary-public-storage",
+      "githubStatusContextSuffix": "-app"
+    }
+  }
+}
