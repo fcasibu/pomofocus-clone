@@ -9,8 +9,7 @@
       }
     },
     "upload": {
-      "target": "temporary-public-storage",
-      "githubStatusContextSuffix": "-app"
+      "target": "temporary-public-storage"
     }
   }
 }
