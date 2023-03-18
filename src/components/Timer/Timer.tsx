@@ -161,18 +161,14 @@ export function Timer() {
     pauseTimer: state.pauseTimer,
     changeCurrentTimer: state.changeCurrentTimer,
     forwardTimer: state.forwardTimer,
-    refresh: state.refresh,
     play: state.play,
   }));
-
   const timerState = useTimerStore((state) => ({
     seconds: state.seconds,
     isPlaying: state.isPlaying,
     currentTimerName: state.currentTimerName,
   }));
-
   const config = useConfigStore((state) => state.config);
-
   const timeout = useRef(0);
 
   useEffect(() => {
@@ -188,10 +184,6 @@ export function Timer() {
       clearTimeout(timeout.current);
     };
   }, [timerState.isPlaying, config.sound?.alarm?.gain, config.sound?.alarm?.sound]);
-
-  useEffect(() => {
-    timerActions.refresh();
-  }, [config]);
 
   const handleTabChange = (tabName: TimerName) => () => {
     if (timerState.currentTimerName === tabName) return;

@@ -2,7 +2,7 @@ import { Alarm_Analog, Alarm_Bell_1, Alarm_Bell_2 } from '@assets';
 import { Input, Range, Select, Toggle } from '@components';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { configSchema } from '@schemas';
-import { initialState, useConfigStore, useModalStore } from '@stores';
+import { initialState, useConfigStore, useModalStore, useTimerStore } from '@stores';
 import type { Config } from '@types';
 import { colors, spacing, zSettingsModal } from '@utils';
 import type { ReactNode } from 'react';
@@ -191,6 +191,7 @@ export function Settings() {
     theme: state.config.theme,
     others: state.config.others,
   }));
+  const refresh = useTimerStore((state) => state.refresh);
 
   const {
     register,
@@ -228,6 +229,7 @@ export function Settings() {
     }
 
     configure(newConfig);
+    refresh();
     close();
   };
 
