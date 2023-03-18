@@ -13,20 +13,20 @@ const pulse = keyframes`
 
 const S = {
   Container: styled.div`
-    width: 100%;
-    height: 100%;
+    align-items: center;
     background-color: ${colors.RED};
     color: ${colors.WHITE};
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
     gap: ${spacing.XXS};
+    height: 100%;
+    justify-content: center;
+    width: 100%;
 
     > h1 {
+      animation: ${pulse} 0.5s ease-in-out infinite;
       font-size: 18px;
       font-weight: 700;
-      animation: ${pulse} 0.5s ease-in-out infinite;
     }
   `,
 };
