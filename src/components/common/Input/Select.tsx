@@ -1,5 +1,6 @@
-import type { Config, ConfigKeys } from '@context';
-import { useConfig } from '@hooks/useConfig';
+import type { ConfigKeys } from '@stores';
+import { useConfigStore } from '@stores';
+import type { Config } from '@types';
 import { colors, playAudio, spacing } from '@utils';
 import produce from 'immer';
 import type { ChangeEvent, ReactNode, SelectHTMLAttributes } from 'react';
@@ -34,7 +35,11 @@ const S = {
 };
 
 export const Select = ({ name, label, control, isAudio, children, ...props }: SelectProps) => {
-  const { sound, updateSound } = useConfig();
+  const { sound, updateSound } = useConfigStore((state) => ({
+    sound: state.config.sound,
+    updateSound: state.updateSound,
+  }));
+
   const { field } = useController({
     name,
     control,

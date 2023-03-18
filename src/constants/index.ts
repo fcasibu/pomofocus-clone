@@ -3,3 +3,5 @@ export const TIMER_NAME = {
   SHORT: 'SHORT',
   LONG: 'LONG',
 } as const;
+
+export const KEY = 'pomofocus-config';

@@ -1,4 +1,5 @@
-import type { Config, ConfigKeys } from '@context';
+import type { ConfigKeys } from '@stores';
+import type { Config } from '@types';
 import { colors, spacing } from '@utils';
 import type { InputHTMLAttributes, KeyboardEvent } from 'react';
 import { useRef, useState } from 'react';

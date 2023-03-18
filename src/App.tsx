@@ -1,7 +1,5 @@
 import { Header, Modal, Settings, Timer } from '@components';
-import { useTimer } from '@hooks';
-import { useConfig } from '@hooks/useConfig';
-import { useModal } from '@hooks/useModal';
+import { useConfigStore, useModalStore, useTimerStore } from '@stores';
 import { colors, spacing } from '@utils';
 import styled, { ThemeProvider } from 'styled-components';
 
@@ -25,9 +23,9 @@ const S = {
 };
 
 function App() {
-  const { currentTimerName } = useTimer();
-  const { openedModal } = useModal();
-  const { theme } = useConfig();
+  const currentTimerName = useTimerStore((state) => state.currentTimerName);
+  const openedModal = useModalStore((state) => state.openedModal);
+  const theme = useConfigStore((state) => state.config.theme);
 
   return (
     <ThemeProvider theme={{ bg: theme.colorThemes[currentTimerName], text: colors.WHITE }}>
