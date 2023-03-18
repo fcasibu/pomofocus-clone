@@ -7,6 +7,7 @@ import { createGlobalStyle } from 'styled-components';
 import './index.css';
 
 const App = React.lazy(() => import('./App'));
+const Loading = React.lazy(() => import('@components/Loading/Loading'));
 
 const router = createBrowserRouter(
   [
@@ -47,7 +48,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <GlobalStyles />
     <HelmetProvider>
-      <React.Suspense fallback={<div>Loading...</div>}>
+      <React.Suspense fallback={<Loading />}>
         <RouterProvider router={router} />
       </React.Suspense>
     </HelmetProvider>
