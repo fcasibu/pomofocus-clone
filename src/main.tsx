@@ -1,13 +1,12 @@
-import { ErrorBoundary } from '@components';
-import React from 'react';
+import { ErrorBoundary, Loading } from '@components';
+import { StrictMode, Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import { HelmetProvider } from 'react-helmet-async';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { createGlobalStyle } from 'styled-components';
 import './index.css';
 
-const App = React.lazy(() => import('./App'));
-const Loading = React.lazy(() => import('@components/Loading/Loading'));
+const App = lazy(() => import('./App'));
 
 const router = createBrowserRouter(
   [
@@ -45,12 +44,12 @@ a {
 `;
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <React.StrictMode>
+  <StrictMode>
     <GlobalStyles />
     <HelmetProvider>
-      <React.Suspense fallback={<Loading />}>
+      <Suspense fallback={<Loading />}>
         <RouterProvider router={router} />
-      </React.Suspense>
+      </Suspense>
     </HelmetProvider>
-  </React.StrictMode>,
+  </StrictMode>,
 );
