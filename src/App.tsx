@@ -1,7 +1,11 @@
-import { Header, Modal, Settings, Timer } from '@components';
+import { Header, Modal, Timer } from '@components';
+import { Spinner } from '@components/Spinner';
 import { useConfigStore, useModalStore, useTimerStore } from '@stores';
 import { colors, spacing } from '@utils';
+import { Suspense, lazy } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
+
+const Settings = lazy(() => import('@components/Settings/Settings'));
 
 const S = {
   Background: styled.div`
@@ -36,7 +40,9 @@ function App() {
             <Timer />
             {openedModal === 'settings' ? (
               <Modal>
-                <Settings />
+                <Suspense fallback={<Spinner />}>
+                  <Settings />
+                </Suspense>
               </Modal>
             ) : null}
           </main>

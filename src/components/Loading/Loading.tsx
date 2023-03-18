@@ -31,7 +31,7 @@ const S = {
   `,
 };
 
-export default function Loading() {
+export function Loading() {
   return (
     <S.Container>
       <FaCheckCircle size={70} />
@@ -39,3 +39,5 @@ export default function Loading() {
     </S.Container>
   );
 }
+
+export default Loading;
