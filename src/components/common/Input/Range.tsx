@@ -1,5 +1,6 @@
-import type { Config, ConfigKeys } from '@context';
-import { useConfig } from '@hooks/useConfig';
+import type { ConfigKeys } from '@stores';
+import { useConfigStore } from '@stores';
+import type { Config } from '@types';
 import { colors, playAudio, spacing } from '@utils';
 import produce from 'immer';
 import type { ChangeEvent, InputHTMLAttributes } from 'react';
@@ -49,7 +50,10 @@ function debounce(fn: (...args: any[]) => void, ms = 1000) {
 }
 
 export const Range = ({ label, control, name, isAudio = true, ...props }: RangeProps) => {
-  const { sound, updateSound } = useConfig();
+  const { sound, updateSound } = useConfigStore((state) => ({
+    sound: state.config.sound,
+    updateSound: state.updateSound,
+  }));
   const { field } = useController({
     control,
     name,

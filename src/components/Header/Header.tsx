@@ -1,6 +1,5 @@
-import type { ModalType } from '@context';
-import { useTimer } from '@hooks';
-import { useModal } from '@hooks/useModal';
+import type { ModalType } from '@stores';
+import { useConfigStore, useModalStore, useTimerStore } from '@stores';
 import { colors, media, spacing } from '@utils';
 import { FaChartBar, FaCheckCircle, FaCog, FaUserAlt } from 'react-icons/fa';
 import type { IconType } from 'react-icons/lib';
@@ -106,7 +105,12 @@ const S = {
 };
 
 export function Header() {
-  const { percentageValue } = useTimer();
+  const { seconds, currentTimerName } = useTimerStore((state) => ({
+    seconds: state.seconds,
+    currentTimerName: state.currentTimerName,
+  }));
+  const time = useConfigStore((state) => state.config.timer.time);
+  const percentageValue = (seconds / time[currentTimerName]) * 100;
 
   return (
     <S.Header $count={percentageValue}>
@@ -138,7 +142,7 @@ const links: Links[] = [
 ];
 
 function NavigationBar() {
-  const { open } = useModal();
+  const open = useModalStore((state) => state.open);
 
   const handleOpenModal = (modalName?: ModalType) => () => {
     if (!modalName) return;

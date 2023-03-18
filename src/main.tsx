@@ -1,6 +1,4 @@
 import { ErrorBoundary } from '@components';
-import { ConfigProvider, TimerProvider } from '@context';
-import { ModalProvider } from '@context/ModalProvider';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { HelmetProvider } from 'react-helmet-async';
@@ -48,16 +46,10 @@ a {
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <GlobalStyles />
-    <ConfigProvider>
-      <TimerProvider>
-        <HelmetProvider>
-          <ModalProvider>
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <RouterProvider router={router} />
-            </React.Suspense>
-          </ModalProvider>
-        </HelmetProvider>
-      </TimerProvider>
-    </ConfigProvider>
+    <HelmetProvider>
+      <React.Suspense fallback={<div>Loading...</div>}>
+        <RouterProvider router={router} />
+      </React.Suspense>
+    </HelmetProvider>
   </React.StrictMode>,
 );

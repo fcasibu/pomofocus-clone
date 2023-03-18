@@ -1,6 +1,7 @@
-import { useModal } from '@hooks/useModal';
+import { useModalStore } from '@stores';
 import { zSettingsBackdrop } from '@utils';
 import type { ReactNode } from 'react';
+import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 
@@ -19,7 +20,21 @@ const S = {
 const modalRoot = document.getElementById('settings-modal-root') as HTMLDivElement;
 
 export function Modal({ children }: { children: ReactNode }) {
-  const { close } = useModal();
+  const close = useModalStore((state) => state.close);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        close();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   return createPortal(
     <>

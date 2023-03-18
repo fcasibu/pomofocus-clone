@@ -1,10 +1,9 @@
 import { Alarm_Analog, Alarm_Bell_1, Alarm_Bell_2 } from '@assets';
 import { Input, Range, Select, Toggle } from '@components';
-import type { Config } from '@context';
-import { configSchema, initialState } from '@context';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useConfig } from '@hooks/useConfig';
-import { useModal } from '@hooks/useModal';
+import { configSchema } from '@schemas';
+import { initialState, useConfigStore, useModalStore } from '@stores';
+import type { Config } from '@types';
 import { colors, spacing, zSettingsModal } from '@utils';
 import type { ReactNode } from 'react';
 import FocusLock from 'react-focus-lock';
@@ -184,8 +183,15 @@ function Setting({ title, children }: { title: string; children: ReactNode }) {
 }
 
 export function Settings() {
-  const { close } = useModal();
-  const { configure, timer, sound, theme, others } = useConfig();
+  const close = useModalStore((state) => state.close);
+  const { configure, timer, sound, theme, others } = useConfigStore((state) => ({
+    configure: state.configure,
+    timer: state.config.timer,
+    sound: state.config.sound,
+    theme: state.config.theme,
+    others: state.config.others,
+  }));
+
   const {
     register,
     handleSubmit,

@@ -8,3 +8,27 @@ export type FlattenObjectKeys<T extends Record<string, unknown>, K = keyof T> = 
     ? `${K}.${FlattenObjectKeys<T[K]>}`
     : `${K}`
   : never;
+
+export type Config = {
+  timer: {
+    time: Record<TimerName, number>;
+    longBreakInterval: number;
+    autoStartBreaks: boolean;
+    autoStartPomo: boolean;
+  };
+  sound: {
+    alarm: {
+      gain: number;
+      sound: string;
+    };
+  };
+  theme: {
+    colorThemes: Record<TimerName, string>;
+    hourFormat: '24' | '12';
+  };
+  others: {
+    notification: {
+      interval: number;
+    };
+  };
+};

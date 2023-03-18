@@ -1,8 +1,9 @@
 import { SEO } from '@components/common/';
-import { useTimer } from '@hooks';
+import { useConfigStore, useTimerStore } from '@stores';
 import type { TimerName } from '@types';
-import { colors, media, spacing } from '@utils';
+import { colors, media, padWithZeroes, spacing } from '@utils';
 import { playAudio } from '@utils/playAudio';
+import { useEffect, useRef } from 'react';
 import { FaStepForward } from 'react-icons/fa';
 import styled, { css } from 'styled-components';
 
@@ -155,27 +156,64 @@ const tabs: Tabs[] = [
 ];
 
 export function Timer() {
-  const { startTimer, pauseTimer, changeCurrentTimer, forwardTimer, isPlaying, currentTimerName, currentTime } =
-    useTimer();
+  const timerActions = useTimerStore((state) => ({
+    startTimer: state.startTimer,
+    pauseTimer: state.pauseTimer,
+    changeCurrentTimer: state.changeCurrentTimer,
+    forwardTimer: state.forwardTimer,
+    refresh: state.refresh,
+    play: state.play,
+  }));
+
+  const timerState = useTimerStore((state) => ({
+    seconds: state.seconds,
+    isPlaying: state.isPlaying,
+    currentTimerName: state.currentTimerName,
+  }));
+
+  const config = useConfigStore((state) => state.config);
+
+  const timeout = useRef(0);
+
+  useEffect(() => {
+    const ONE_SECOND = 1000;
+
+    if (timerState.isPlaying) {
+      timeout.current = setInterval(() => {
+        timerActions.play(config);
+      }, ONE_SECOND);
+    }
+
+    return () => {
+      clearTimeout(timeout.current);
+    };
+  }, [timerState.isPlaying, config.sound?.alarm?.gain, config.sound?.alarm?.sound]);
+
+  useEffect(() => {
+    timerActions.refresh();
+  }, [config]);
 
   const handleTabChange = (tabName: TimerName) => () => {
-    if (currentTimerName === tabName) return;
-    changeCurrentTimer(tabName);
+    if (timerState.currentTimerName === tabName) return;
+    timerActions.changeCurrentTimer(tabName);
   };
 
   const handleClick = () => {
     playAudio();
-    if (isPlaying) {
-      pauseTimer();
+    if (timerState.isPlaying) {
+      timerActions.pauseTimer();
       return;
     }
 
-    startTimer();
+    timerActions.startTimer();
   };
 
-  const title = currentTimerName === 'POMO' ? `${currentTime} | Time to focus!` : `${currentTime} | Time for a break!`;
-
-  console.log(isPlaying);
+  const time = config.timer.time[timerState.currentTimerName] - timerState.seconds;
+  const minutes = Math.floor(time / 60);
+  const seconds = Math.floor(time % 60);
+  const currentTime = `${padWithZeroes(minutes)}:${padWithZeroes(seconds)}`;
+  const title =
+    timerState.currentTimerName === 'POMO' ? `${currentTime} | Time to focus!` : `${currentTime} | Time for a break!`;
 
   return (
     <S.Container>
@@ -189,7 +227,7 @@ export function Timer() {
       <header>
         <S.Tabs>
           {tabs.map(({ name, short, long }) => (
-            <S.Tab key={name} $isSelected={name === currentTimerName}>
+            <S.Tab key={name} $isSelected={name === timerState.currentTimerName}>
               <button type="button" onClick={handleTabChange(name)}>
                 <span className="tab-short">{short}</span>
                 <span className="tab-long">{long}</span>
@@ -200,10 +238,15 @@ export function Timer() {
       </header>
       <S.Time>{currentTime}</S.Time>
       <S.Controls>
-        <S.Button type="button" $isPlaying={isPlaying} onClick={handleClick}>
-          {isPlaying ? 'Pause' : 'Start'}
+        <S.Button type="button" $isPlaying={timerState.isPlaying} onClick={handleClick}>
+          {timerState.isPlaying ? 'Pause' : 'Start'}
         </S.Button>
-        <S.ForwardButton type="button" $isPlaying={isPlaying} onClick={forwardTimer} aria-label="Skip Forward">
+        <S.ForwardButton
+          type="button"
+          $isPlaying={timerState.isPlaying}
+          onClick={() => timerActions.forwardTimer(config.timer)}
+          aria-label="Skip Forward"
+        >
           <FaStepForward size={30} />
         </S.ForwardButton>
       </S.Controls>
