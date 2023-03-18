@@ -68,7 +68,6 @@ const S = {
     padding: ${spacing.XXXS} ${spacing.XS};
 
     > button {
-      /* TODO: Reusable  button component */
       all: unset;
       background-color: ${colors.BLACK};
       border-radius: 4px;
