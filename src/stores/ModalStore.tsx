@@ -1,13 +1,14 @@
 import type { TimerName } from '@types';
+import type { Immutable } from 'immer';
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
 export type ModalType = 'settings' | 'colors' | 'closed';
 
-type ModalState = {
+type ModalState = Immutable<{
   openedModal: ModalType;
   colorFor?: TimerName;
-};
+}>;
 
 type ModalActions = {
   open(modal: ModalType, colorFor?: TimerName): void;

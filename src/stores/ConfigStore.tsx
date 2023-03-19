@@ -2,6 +2,7 @@ import { Alarm_Analog } from '@assets';
 import { KEY } from '@constants';
 import type { Config, FlattenObjectKeys } from '@types';
 import { colors } from '@utils';
+import type { Immutable } from 'immer';
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
@@ -44,28 +45,32 @@ export const initialState: Config = {
 };
 
 export const useConfigStore = create(
-  immer<{ config: Config } & Actions>((set) => ({
-    config: initialState,
+  immer<{ config: Immutable<Config> } & Actions>((set) => ({
+    config: JSON.parse(localStorage.getItem(KEY) as string) ?? initialState,
     updateTimer: (newTimer: Config['timer']) =>
       set((state) => {
         state.config.timer = newTimer;
+        localStorage.setItem(KEY, JSON.stringify(state.config));
       }),
     updateSound: (newSound: Config['sound']) =>
       set((state) => {
         state.config.sound = newSound;
+        localStorage.setItem(KEY, JSON.stringify(state.config));
       }),
     updateTheme: (newTheme: Config['theme']) =>
       set((state) => {
         state.config.theme = newTheme;
+        localStorage.setItem(KEY, JSON.stringify(state.config));
       }),
     updateOthers: (newOthers: Config['others']) =>
       set((state) => {
         state.config.others = newOthers;
+        localStorage.setItem(KEY, JSON.stringify(state.config));
       }),
     configure: (newConfig: Config) =>
       set((state) => {
         state.config = newConfig;
-        localStorage.setItem(KEY, JSON.stringify(newConfig));
+        localStorage.setItem(KEY, JSON.stringify(state.config));
       }),
   })),
 );
