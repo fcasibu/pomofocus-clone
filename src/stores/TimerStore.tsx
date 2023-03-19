@@ -136,8 +136,8 @@ export const useTimerStore = create(
 
         if (isEveryNotificationType && isPomoTimer) {
           if (
-            state.seconds % notificationIntervalInSeconds === 0 &&
-            state.seconds !== timer.time.POMO
+            timeRemaining % notificationIntervalInSeconds === 0 &&
+            timeRemaining !== 0
           ) {
             notify(
               `You have ${timeRemaining / 60} ${
