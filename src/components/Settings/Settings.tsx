@@ -25,7 +25,7 @@ const S = {
     position: fixed;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 80%;
+    width: 90%;
     z-index: ${zSettingsModal};
   `,
 
@@ -108,6 +108,16 @@ const S = {
       &:hover {
         color: ${colors.BLACK};
       }
+    }
+  `,
+
+  NotificationContainer: styled.div`
+    align-items: center;
+    display: flex;
+    gap: ${spacing.XXXS};
+
+    > *:not(:last-child) {
+      max-width: 75px;
     }
   `,
 
@@ -344,6 +354,38 @@ export function Settings() {
                   </option>
                 ))}
               </Select>
+            </S.SettingContainer>
+          </Setting>
+          <Setting title="Others">
+            <S.SettingContainer>
+              <span>Notification</span>
+              <S.NotificationContainer>
+                <Select
+                  control={control}
+                  name="others.notification.type"
+                  id="settings-others-notification-type"
+                  label="Notification Type"
+                >
+                  {/* TODO: Refactor */}
+                  {[
+                    { value: 'last', name: 'Last' },
+                    { value: 'every', name: 'Every' },
+                  ].map(({ value, name }, index) => (
+                    <option key={`${name}-${index}`} value={value}>
+                      {name}
+                    </option>
+                  ))}
+                </Select>
+                <Input
+                  {...register('others.notification.interval', {
+                    valueAsNumber: true,
+                  })}
+                  type="number"
+                  step="1"
+                  aria-label="Notification Interval"
+                />
+                <span>min</span>
+              </S.NotificationContainer>
             </S.SettingContainer>
           </Setting>
           <S.Footer>

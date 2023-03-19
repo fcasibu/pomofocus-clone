@@ -16,7 +16,7 @@ type Actions = {
   configure(newConfig: Config): void;
 };
 
-export const initialState: Config = {
+let initialState: Config = {
   timer: {
     time: { POMO: 1500, SHORT: 300, LONG: 900 },
     longBreakInterval: 4,
@@ -39,14 +39,23 @@ export const initialState: Config = {
   },
   others: {
     notification: {
-      interval: 5,
+      interval: 1,
+      type: 'last',
     },
   },
 };
 
+// TODO: Firebase
+try {
+  initialState =
+    JSON.parse(localStorage.getItem(KEY) as string) ?? initialState;
+} catch {
+  localStorage.setItem(KEY, JSON.stringify(initialState));
+}
+
 export const useConfigStore = create(
   immer<{ config: Immutable<Config> } & Actions>((set) => ({
-    config: JSON.parse(localStorage.getItem(KEY) as string) ?? initialState,
+    config: initialState,
     updateTimer: (newTimer: Config['timer']) =>
       set((state) => {
         state.config.timer = newTimer;

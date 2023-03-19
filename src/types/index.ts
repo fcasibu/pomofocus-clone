@@ -32,6 +32,7 @@ export type Config = {
   others: {
     notification: {
       interval: number;
+      type: 'last' | 'every';
     };
   };
 };
