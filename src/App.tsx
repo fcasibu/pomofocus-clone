@@ -2,7 +2,7 @@ import { Header, Modal, Timer } from '@components';
 import { Spinner } from '@components/Spinner';
 import { useConfigStore, useModalStore, useTimerStore } from '@stores';
 import { colors, spacing } from '@utils';
-import { Suspense, lazy, useEffect } from 'react';
+import { Suspense, lazy, useState } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 
 const Settings = lazy(() => import('@components/Settings/Settings'));
@@ -25,18 +25,50 @@ const S = {
     max-width: 640px;
     padding: 14px ${spacing.XXXS};
   `,
+
+  PermissionContainer: styled.div`
+    background-color: ${colors.WHITE};
+    border-radius: 5px;
+    bottom: 0;
+    color: ${colors.BLACK};
+    max-height: 200px;
+    max-width: 200px;
+    padding: ${spacing.XS};
+    position: fixed;
+    right: 0;
+    transform: translate(-50%, -50%);
+    width: 100%;
+
+    > h2 {
+      margin-bottom: ${spacing.XXXS};
+    }
+
+    > button {
+      all: unset;
+      background-color: ${colors.BLACK};
+      border-radius: 3px;
+      color: ${colors.WHITE};
+      cursor: pointer;
+      font-size: 12px;
+      padding: ${spacing.XXXXS};
+
+      &:focus-visible {
+        outline: auto;
+      }
+    }
+  `,
 };
 
 function App() {
   const currentTimerName = useTimerStore((state) => state.currentTimerName);
   const openedModal = useModalStore((state) => state.openedModal);
   const theme = useConfigStore((state) => state.config.theme);
+  const [isOpen, setIsOpen] = useState(true);
 
-  useEffect(() => {
-    if (!('Notification' in window)) return;
-
+  const handlePermission = () => {
     Notification.requestPermission();
-  }, []);
+    setIsOpen(false);
+  };
 
   return (
     <ThemeProvider
@@ -63,6 +95,19 @@ function App() {
             ) : null}
           </main>
         </S.Container>
+        {'Notification' in window &&
+        Notification.permission === 'default' &&
+        isOpen ? (
+          <S.PermissionContainer
+            role="dialog"
+            aria-labelledby="notification-dialog-label"
+          >
+            <h2 id="notification-dialog-label">Allow Notification?</h2>
+            <button type="button" onClick={handlePermission}>
+              Open notification menu
+            </button>
+          </S.PermissionContainer>
+        ) : null}
       </S.Background>
     </ThemeProvider>
   );
