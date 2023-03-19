@@ -29,15 +29,12 @@ const S = {
   PermissionContainer: styled.div`
     background-color: ${colors.WHITE};
     border-radius: 5px;
-    bottom: 0;
+    bottom: 20px;
     color: ${colors.BLACK};
-    max-height: 200px;
-    max-width: 200px;
     padding: ${spacing.XS};
     position: fixed;
-    right: 0;
-    transform: translate(-50%, -50%);
-    width: 100%;
+    right: 20px;
+    width: max-content;
 
     > h2 {
       margin-bottom: ${spacing.XXXS};
