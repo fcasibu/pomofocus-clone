@@ -70,11 +70,15 @@ export const Toggle = ({ control, name, label, ...props }: ToggleProps) => {
     control,
     name,
   });
-  const ref = useRef<HTMLLabelElement | null>(null);
+  const ref = useRef<HTMLDivElement | null>(null);
   const [isChecked, setIsChecked] = useState(field.value as boolean);
 
   const handleToggle = () => {
-    if (document.activeElement?.getAttribute('name') !== ref.current?.getAttribute('name')) return;
+    if (
+      document.activeElement?.getAttribute('name') !==
+      ref.current?.getAttribute('name')
+    )
+      return;
 
     setIsChecked((prev) => {
       field.onChange(!prev);
@@ -82,7 +86,7 @@ export const Toggle = ({ control, name, label, ...props }: ToggleProps) => {
     });
   };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLLabelElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.code === 'Enter' || e.code === 'Space') {
       handleToggle();
     }
@@ -90,16 +94,21 @@ export const Toggle = ({ control, name, label, ...props }: ToggleProps) => {
 
   return (
     <S.Container>
-      <S.Label
-        tabIndex={0}
-        onKeyDown={handleKeyDown}
-        role="switch"
-        aria-checked={isChecked}
-        aria-label={label}
-        ref={ref}
-      >
-        <S.Toggle type="checkbox" checked={isChecked} onChange={handleToggle} {...props} />
-        <div />
+      <S.Label>
+        <S.Toggle
+          type="checkbox"
+          checked={isChecked}
+          onChange={handleToggle}
+          {...props}
+        />
+        <div
+          tabIndex={0}
+          onKeyDown={handleKeyDown}
+          role="switch"
+          aria-checked={isChecked}
+          aria-label={label}
+          ref={ref}
+        />
       </S.Label>
     </S.Container>
   );

@@ -34,7 +34,14 @@ const S = {
   `,
 };
 
-export const Select = ({ name, label, control, isAudio, children, ...props }: SelectProps) => {
+export const Select = ({
+  name,
+  label,
+  control,
+  isAudio,
+  children,
+  ...props
+}: SelectProps) => {
   const { sound, updateSound } = useConfigStore((state) => ({
     sound: state.config.sound,
     updateSound: state.updateSound,
@@ -58,7 +65,13 @@ export const Select = ({ name, label, control, isAudio, children, ...props }: Se
   };
 
   return (
-    <S.Select name={name} aria-label={label} onChange={handleChange} {...props} defaultValue={field.value as string}>
+    <S.Select
+      name={name}
+      aria-label={label}
+      onChange={handleChange}
+      {...props}
+      defaultValue={field.value as string}
+    >
       {children}
     </S.Select>
   );

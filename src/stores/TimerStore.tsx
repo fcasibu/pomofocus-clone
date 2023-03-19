@@ -47,7 +47,9 @@ export const useTimerStore = create(
         if (state.currentTimerName === TIMER_NAME.POMO) {
           state.done++;
           state.isPlaying = autoStartBreaks;
-          state.currentTimerName = isLongBreak ? TIMER_NAME.LONG : TIMER_NAME.SHORT;
+          state.currentTimerName = isLongBreak
+            ? TIMER_NAME.LONG
+            : TIMER_NAME.SHORT;
         } else {
           state.isPlaying = autoStartPomo;
           state.currentTimerName = TIMER_NAME.POMO;
@@ -72,17 +74,23 @@ export const useTimerStore = create(
     play: (config: Config) =>
       set((state) => {
         const { sound, timer } = config;
-        const isTimerFinished = state.seconds === timer.time[state.currentTimerName];
-        const isPomoFinished = isTimerFinished && state.currentTimerName === TIMER_NAME.POMO;
-        const isShortBreakFinished = isTimerFinished && state.currentTimerName === TIMER_NAME.SHORT;
-        const isLongBreakFinished = isTimerFinished && state.currentTimerName === TIMER_NAME.LONG;
+        const isTimerFinished =
+          state.seconds === timer.time[state.currentTimerName];
+        const isPomoFinished =
+          isTimerFinished && state.currentTimerName === TIMER_NAME.POMO;
+        const isShortBreakFinished =
+          isTimerFinished && state.currentTimerName === TIMER_NAME.SHORT;
+        const isLongBreakFinished =
+          isTimerFinished && state.currentTimerName === TIMER_NAME.LONG;
         const isLongBreak = (state.done + 1) % timer.longBreakInterval === 0;
 
         if (isPomoFinished) {
           playAudio(sound.alarm.sound, sound.alarm.gain);
           state.seconds = 0;
           state.isPlaying = timer.autoStartBreaks;
-          state.currentTimerName = isLongBreak ? TIMER_NAME.LONG : TIMER_NAME.SHORT;
+          state.currentTimerName = isLongBreak
+            ? TIMER_NAME.LONG
+            : TIMER_NAME.SHORT;
           state.done++;
           return state;
         }

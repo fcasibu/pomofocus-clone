@@ -1,22 +1,28 @@
+import type { TimerName } from '@types';
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
-export type ModalType = 'settings' | 'closed';
+export type ModalType = 'settings' | 'colors' | 'closed';
 
 type ModalState = {
   openedModal: ModalType;
+  colorFor?: TimerName;
 };
 
 type ModalActions = {
-  open(modal: ModalType): void;
+  open(modal: ModalType, colorFor?: TimerName): void;
   close(): void;
 };
 
 export const useModalStore = create(
   immer<ModalState & ModalActions>((set) => ({
     openedModal: 'closed',
-    open: (newModal: ModalType) =>
+    open: (newModal: ModalType, colorFor?: TimerName) =>
       set((state) => {
+        if (colorFor) {
+          state.colorFor = colorFor;
+        }
+
         state.openedModal = newModal;
         document.body.style.overflow = 'hidden';
       }),

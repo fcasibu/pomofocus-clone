@@ -37,15 +37,16 @@ const S = {
   `,
 };
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(({ type = 'text', id, label, ...props }, ref) =>
-  label ? (
-    <S.Container>
-      <S.Label htmlFor={id}>{label}</S.Label>
+export const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ type = 'text', id, label, ...props }, ref) =>
+    label ? (
+      <S.Container>
+        <S.Label htmlFor={id}>{label}</S.Label>
+        <S.Input type={type} id={id} {...props} ref={ref} />
+      </S.Container>
+    ) : (
       <S.Input type={type} id={id} {...props} ref={ref} />
-    </S.Container>
-  ) : (
-    <S.Input type={type} id={id} {...props} ref={ref} />
-  ),
+    ),
 );
 
 Input.displayName = 'Input';

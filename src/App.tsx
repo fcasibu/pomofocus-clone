@@ -6,6 +6,7 @@ import { Suspense, lazy } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 
 const Settings = lazy(() => import('@components/Settings/Settings'));
+const ColorPicker = lazy(() => import('@components/ColorPicker/ColorPicker'));
 
 const S = {
   Background: styled.div`
@@ -32,7 +33,9 @@ function App() {
   const theme = useConfigStore((state) => state.config.theme);
 
   return (
-    <ThemeProvider theme={{ bg: theme.colorThemes[currentTimerName], text: colors.WHITE }}>
+    <ThemeProvider
+      theme={{ bg: theme.colorThemes[currentTimerName], text: colors.WHITE }}
+    >
       <S.Background>
         <S.Container>
           <Header />
@@ -42,6 +45,13 @@ function App() {
               <Modal>
                 <Suspense fallback={<Spinner />}>
                   <Settings />
+                </Suspense>
+              </Modal>
+            ) : null}
+            {openedModal === 'colors' ? (
+              <Modal>
+                <Suspense fallback={<Spinner />}>
+                  <ColorPicker />
                 </Suspense>
               </Modal>
             ) : null}

@@ -17,15 +17,25 @@ const S = {
   `,
 };
 
-const modalRoot = document.getElementById('settings-modal-root') as HTMLDivElement;
+const modalRoot = document.getElementById(
+  'settings-modal-root',
+) as HTMLDivElement;
 
 export function Modal({ children }: { children: ReactNode }) {
-  const close = useModalStore((state) => state.close);
+  const { close, open, openedModal } = useModalStore((state) => ({
+    close: state.close,
+    open: state.open,
+    openedModal: state.openedModal,
+  }));
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        close();
+        if (openedModal !== 'colors') {
+          close();
+        } else {
+          open('settings');
+        }
       }
     };
 
@@ -38,7 +48,9 @@ export function Modal({ children }: { children: ReactNode }) {
 
   return createPortal(
     <>
-      <S.Backdrop onClick={close} />
+      <S.Backdrop
+        onClick={() => (openedModal !== 'colors' ? close() : open('settings'))}
+      />
       {children}
     </>,
     modalRoot,
