@@ -35,7 +35,13 @@ export function ErrorBoundary() {
   return (
     <S.Container role="alert">
       <h1>Something went wrong!</h1>
-      <S.Button onClick={() => window.location.assign(window.location.origin)}>
+      <S.Button
+        onClick={() =>
+          window.location.assign(
+            window.location.origin + import.meta.env.BASE_URL,
+          )
+        }
+      >
         Refresh
       </S.Button>
     </S.Container>
