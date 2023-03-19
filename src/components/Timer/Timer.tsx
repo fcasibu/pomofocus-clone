@@ -1,4 +1,5 @@
 import { SEO } from '@components/common/';
+import { ONE_SECOND } from '@constants';
 import { useConfigStore, useTimerStore } from '@stores';
 import type { TimerName } from '@types';
 import { colors, media, padWithZeroes, spacing } from '@utils';
@@ -173,8 +174,6 @@ export function Timer() {
   const timeout = useRef(0);
 
   useEffect(() => {
-    const ONE_SECOND = 1000;
-
     if (timerState.isPlaying) {
       timeout.current = setInterval(() => {
         timerActions.play(config);

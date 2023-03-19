@@ -5,3 +5,7 @@ export const TIMER_NAME = {
 } as const;
 
 export const KEY = 'pomofocus-config';
+
+export const TIMER_KEY = 'pomofocus-timer';
+
+export const ONE_SECOND = 1000;

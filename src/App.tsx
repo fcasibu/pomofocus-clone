@@ -2,7 +2,7 @@ import { Header, Modal, Timer } from '@components';
 import { Spinner } from '@components/Spinner';
 import { useConfigStore, useModalStore, useTimerStore } from '@stores';
 import { colors, spacing } from '@utils';
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 
 const Settings = lazy(() => import('@components/Settings/Settings'));
@@ -31,6 +31,12 @@ function App() {
   const currentTimerName = useTimerStore((state) => state.currentTimerName);
   const openedModal = useModalStore((state) => state.openedModal);
   const theme = useConfigStore((state) => state.config.theme);
+
+  useEffect(() => {
+    if (!('Notification' in window)) return;
+
+    Notification.requestPermission();
+  }, []);
 
   return (
     <ThemeProvider
