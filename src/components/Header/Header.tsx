@@ -161,7 +161,11 @@ function NavigationBar() {
                 <span>{name}</span>
               </Link>
             ) : (
-              <button type="button" aria-label={`Open ${name}`} onClick={handleOpenModal(modalName)}>
+              <button
+                type="button"
+                aria-label={`Open ${name}`}
+                onClick={handleOpenModal(modalName)}
+              >
                 <Icon size={14} />
                 <span>{name}</span>
               </button>

@@ -49,7 +49,13 @@ function debounce(fn: (...args: any[]) => void, ms = 1000) {
   };
 }
 
-export const Range = ({ label, control, name, isAudio = true, ...props }: RangeProps) => {
+export const Range = ({
+  label,
+  control,
+  name,
+  isAudio = true,
+  ...props
+}: RangeProps) => {
   const { sound, updateSound } = useConfigStore((state) => ({
     sound: state.config.sound,
     updateSound: state.updateSound,

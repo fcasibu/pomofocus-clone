@@ -1,8 +1,13 @@
 import { Alarm_Analog, Alarm_Bell_1, Alarm_Bell_2 } from '@assets';
-import { Input, Range, Select, Toggle } from '@components';
+import { ColorSwitcher, Input, Range, Select, Toggle } from '@components';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { configSchema } from '@schemas';
-import { initialState, useConfigStore, useModalStore, useTimerStore } from '@stores';
+import {
+  initialState,
+  useConfigStore,
+  useModalStore,
+  useTimerStore,
+} from '@stores';
 import type { Config } from '@types';
 import { colors, spacing, zSettingsModal } from '@utils';
 import type { ReactNode } from 'react';
@@ -20,32 +25,13 @@ const S = {
     left: 50%;
     max-height: 600px;
     max-width: 400px;
-    overflow-y: auto;
+    overflow-y: scroll;
     padding: ${spacing.XS};
     position: fixed;
     top: 50%;
     transform: translate(-50%, -50%);
     width: 80%;
     z-index: ${zSettingsModal};
-  `,
-
-  Colors: styled.ul`
-    display: flex;
-    gap: ${spacing.XXXS};
-    margin: 0;
-  `,
-
-  Color: styled.button<{ $color: string }>`
-    all: unset;
-    background-color: ${({ $color }) => $color};
-    border-radius: 50%;
-    cursor: pointer;
-    height: 25px;
-    width: 25px;
-
-    &:focus-visible {
-      outline: auto;
-    }
   `,
 
   Control: styled.div`
@@ -183,13 +169,15 @@ function Setting({ title, children }: { title: string; children: ReactNode }) {
 
 export function Settings() {
   const close = useModalStore((state) => state.close);
-  const { configure, timer, sound, theme, others } = useConfigStore((state) => ({
-    configure: state.configure,
-    timer: state.config.timer,
-    sound: state.config.sound,
-    theme: state.config.theme,
-    others: state.config.others,
-  }));
+  const { configure, timer, sound, theme, others } = useConfigStore(
+    (state) => ({
+      configure: state.configure,
+      timer: state.config.timer,
+      sound: state.config.sound,
+      theme: state.config.theme,
+      others: state.config.others,
+    }),
+  );
   const refresh = useTimerStore((state) => state.refresh);
 
   const {
@@ -239,7 +227,11 @@ export function Settings() {
 
   return (
     <FocusLock>
-      <S.Container aria-labelledby="settings-modal-label" role="dialog" aria-modal="true">
+      <S.Container
+        aria-labelledby="settings-modal-label"
+        role="dialog"
+        aria-modal="true"
+      >
         <S.Header>
           <h2 id="settings-modal-label">Settings</h2>
           <button type="button" onClick={close} aria-label="Close Settings">
@@ -273,7 +265,9 @@ export function Settings() {
               />
             </S.SettingContainer>
             <S.SettingContainer>
-              <label htmlFor="settings-timer-autoStartPomo">Auto Start Pomodoros</label>
+              <label htmlFor="settings-timer-autoStartPomo">
+                Auto Start Pomodoros
+              </label>
               <Toggle
                 control={control}
                 name="timer.autoStartPomo"
@@ -282,7 +276,9 @@ export function Settings() {
               />
             </S.SettingContainer>
             <S.SettingContainer>
-              <label htmlFor="settings-timer-autoStartBreaks">Auto Start Breaks</label>
+              <label htmlFor="settings-timer-autoStartBreaks">
+                Auto Start Breaks
+              </label>
               <Toggle
                 control={control}
                 name="timer.autoStartBreaks"
@@ -291,7 +287,9 @@ export function Settings() {
               />
             </S.SettingContainer>
             <S.SettingContainer>
-              <label htmlFor="settings-timer-longBreakInterval">Long Break Interval</label>
+              <label htmlFor="settings-timer-longBreakInterval">
+                Long Break Interval
+              </label>
               <Input
                 {...register('timer.longBreakInterval', {
                   valueAsNumber: true,
@@ -333,23 +331,27 @@ export function Settings() {
                     </option>
                   ))}
                 </Select>
-                <Range control={control} name="sound.alarm.gain" label="Alarm Sound" />
+                <Range
+                  control={control}
+                  name="sound.alarm.gain"
+                  label="Alarm Sound"
+                />
               </S.Row>
             </S.SettingContainer>
           </Setting>
           <Setting title="Theme">
             <S.SettingContainer>
               <label htmlFor="settings-theme-colorThemes">Color Themes</label>
-              {/* TODO: Refactor to a ColorSwitcher component */}
-              <S.Colors role="dialog" id="settings-theme-colorThemes">
-                {Object.entries(theme.colorThemes).map(([key, value], index) => (
-                  <S.Color $color={value} key={`${key}-${index}`} type="button" aria-label={`Open modal for ${key}`} />
-                ))}
-              </S.Colors>
+              <ColorSwitcher />
             </S.SettingContainer>
             <S.SettingContainer>
               <label htmlFor="settings-theme-hourFormat">Hour Format</label>
-              <Select control={control} name="theme.hourFormat" id="settings-theme-hourFormat" label="Hour Format">
+              <Select
+                control={control}
+                name="theme.hourFormat"
+                id="settings-theme-hourFormat"
+                label="Hour Format"
+              >
                 {/* TODO: Refactor */}
                 {[
                   { value: 12, name: '12-hour' },

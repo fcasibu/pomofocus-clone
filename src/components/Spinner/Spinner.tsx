@@ -1,4 +1,5 @@
-import { FaCheckCircle } from 'react-icons/fa';
+import { colors, zSpinner } from '@utils';
+import { VscLoading } from 'react-icons/vsc';
 import styled, { keyframes } from 'styled-components';
 
 const spin = keyframes`
@@ -16,9 +17,11 @@ const S = {
     position: absolute;
     top: 50%;
     transform: translate(-50%, -50%);
+    z-index: ${zSpinner};
 
     > div {
       animation: ${spin} 1s infinite;
+      color: ${colors.WHITE};
     }
   `,
 };
@@ -27,7 +30,7 @@ export function Spinner() {
   return (
     <S.Container>
       <div>
-        <FaCheckCircle size={50} />
+        <VscLoading size={75} />
       </div>
     </S.Container>
   );

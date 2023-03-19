@@ -86,7 +86,8 @@ const S = {
   `,
 
   Tab: styled.li<{ $isSelected: boolean }>`
-    background-color: ${({ $isSelected }) => ($isSelected ? colors.TRANSPARENT_BLACK : 'none')};
+    background-color: ${({ $isSelected }) =>
+      $isSelected ? colors.TRANSPARENT_BLACK : 'none'};
     border-radius: 3px;
     cursor: pointer;
 
@@ -183,7 +184,11 @@ export function Timer() {
     return () => {
       clearTimeout(timeout.current);
     };
-  }, [timerState.isPlaying, config.sound?.alarm?.gain, config.sound?.alarm?.sound]);
+  }, [
+    timerState.isPlaying,
+    config.sound?.alarm?.gain,
+    config.sound?.alarm?.sound,
+  ]);
 
   const handleTabChange = (tabName: TimerName) => () => {
     if (timerState.currentTimerName === tabName) return;
@@ -200,12 +205,15 @@ export function Timer() {
     timerActions.startTimer();
   };
 
-  const time = config.timer.time[timerState.currentTimerName] - timerState.seconds;
+  const time =
+    config.timer.time[timerState.currentTimerName] - timerState.seconds;
   const minutes = Math.floor(time / 60);
   const seconds = Math.floor(time % 60);
   const currentTime = `${padWithZeroes(minutes)}:${padWithZeroes(seconds)}`;
   const title =
-    timerState.currentTimerName === 'POMO' ? `${currentTime} | Time to focus!` : `${currentTime} | Time for a break!`;
+    timerState.currentTimerName === 'POMO'
+      ? `${currentTime} | Time to focus!`
+      : `${currentTime} | Time for a break!`;
 
   return (
     <S.Container>
@@ -219,7 +227,10 @@ export function Timer() {
       <header>
         <S.Tabs>
           {tabs.map(({ name, short, long }) => (
-            <S.Tab key={name} $isSelected={name === timerState.currentTimerName}>
+            <S.Tab
+              key={name}
+              $isSelected={name === timerState.currentTimerName}
+            >
               <button type="button" onClick={handleTabChange(name)}>
                 <span className="tab-short">{short}</span>
                 <span className="tab-long">{long}</span>
@@ -230,7 +241,11 @@ export function Timer() {
       </header>
       <S.Time>{currentTime}</S.Time>
       <S.Controls>
-        <S.Button type="button" $isPlaying={timerState.isPlaying} onClick={handleClick}>
+        <S.Button
+          type="button"
+          $isPlaying={timerState.isPlaying}
+          onClick={handleClick}
+        >
           {timerState.isPlaying ? 'Pause' : 'Start'}
         </S.Button>
         <S.ForwardButton

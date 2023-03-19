@@ -1,3 +1,5 @@
+export * from './ColorPicker';
+export * from './ColorSwitcher';
 export * from './ErrorBoundary';
 export * from './Header';
 export * from './Loading';
