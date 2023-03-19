@@ -2,12 +2,7 @@ import { Alarm_Analog, Alarm_Bell_1, Alarm_Bell_2 } from '@assets';
 import { ColorSwitcher, Input, Range, Select, Toggle } from '@components';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { configSchema } from '@schemas';
-import {
-  initialState,
-  useConfigStore,
-  useModalStore,
-  useTimerStore,
-} from '@stores';
+import { useConfigStore, useModalStore, useTimerStore } from '@stores';
 import type { Config } from '@types';
 import { colors, spacing, zSettingsModal } from '@utils';
 import type { ReactNode } from 'react';
@@ -169,15 +164,11 @@ function Setting({ title, children }: { title: string; children: ReactNode }) {
 
 export function Settings() {
   const close = useModalStore((state) => state.close);
-  const { configure, timer, sound, theme, others } = useConfigStore(
-    (state) => ({
-      configure: state.configure,
-      timer: state.config.timer,
-      sound: state.config.sound,
-      theme: state.config.theme,
-      others: state.config.others,
-    }),
-  );
+  const { configure, timer, config } = useConfigStore((state) => ({
+    configure: state.configure,
+    timer: state.config.timer,
+    config: state.config,
+  }));
   const refresh = useTimerStore((state) => state.refresh);
 
   const {
@@ -187,7 +178,7 @@ export function Settings() {
     control,
   } = useForm<Config>({
     defaultValues: {
-      ...initialState,
+      ...config,
       timer: {
         ...timer,
         time: {
@@ -195,15 +186,6 @@ export function Settings() {
           SHORT: timer.time.SHORT / 60,
           LONG: timer.time.LONG / 60,
         },
-      },
-      sound: {
-        ...sound,
-      },
-      theme: {
-        ...theme,
-      },
-      others: {
-        ...others,
       },
     },
     resolver: yupResolver(configSchema),

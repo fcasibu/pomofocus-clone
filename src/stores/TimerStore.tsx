@@ -1,16 +1,17 @@
 import { TIMER_NAME } from '@constants';
 import type { Config, TimerName } from '@types';
 import { playAudio } from '@utils';
+import type { Immutable } from 'immer';
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
-export type TimerState = {
+export type TimerState = Immutable<{
   seconds: number;
   currentTimerName: TimerName;
   done: number;
   isPaused: boolean;
   isPlaying: boolean;
-};
+}>;
 
 export type TimerActions = {
   startTimer(): void;
