@@ -29,8 +29,7 @@ const GlobalStyles = createGlobalStyle`
 }
 
 body,
-html,
-#root {
+html {
   height: 100%;
 }
 
