@@ -5,7 +5,13 @@
       "numberOfRuns": 3,
       "startServerCommand": "npm run preview",
       "settings": {
-        "preset": "desktop"
+        "preset": "desktop",
+        "onlyCategories": [
+          "performance",
+          "accessibility",
+          "best-practices",
+          "seo"
+        ]
       }
     },
     "upload": {

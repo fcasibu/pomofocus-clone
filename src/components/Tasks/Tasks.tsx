@@ -89,6 +89,7 @@ const S = {
     border-radius: 4px;
     border-top: 2px solid ${colors.WHITE};
     display: flex;
+    flex-wrap: wrap;
     gap: ${spacing.XS};
     justify-content: center;
     padding: ${spacing.L};
@@ -119,6 +120,7 @@ const S = {
     cursor: pointer;
     display: flex;
     font-weight: 600;
+    gap: ${spacing.S};
     justify-content: space-between;
     overflow: hidden;
     padding: ${spacing.S};
@@ -128,9 +130,11 @@ const S = {
       align-items: center;
       display: flex;
       gap: ${spacing.XXXS};
+      overflow-wrap: anywhere;
 
       &:last-child {
         gap: ${spacing.XS};
+        overflow-wrap: unset;
       }
     }
 
@@ -170,7 +174,11 @@ export function Tasks() {
     <S.Container>
       <S.Header>
         <S.Title>Tasks</S.Title>
-        <S.IconWrapper $isTransparent>
+        <S.IconWrapper
+          type="button"
+          aria-label="Toggle tasks options dropdown"
+          $isTransparent
+        >
           <FaEllipsisV />
         </S.IconWrapper>
       </S.Header>
@@ -185,7 +193,7 @@ export function Tasks() {
             </div>
             <div>
               <span>0/1</span>
-              <S.IconWrapper>
+              <S.IconWrapper type="button" aria-label="Edit Task">
                 <FaEllipsisV size={12} />
               </S.IconWrapper>
             </div>
