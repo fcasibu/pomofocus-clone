@@ -6,5 +6,6 @@ export * from './Loading';
 export * from './PomoCount';
 export * from './Settings';
 export * from './Spinner';
+export * from './Tasks';
 export * from './Timer';
 export * from './common';
