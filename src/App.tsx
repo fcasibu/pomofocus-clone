@@ -11,7 +11,7 @@ const ColorPicker = lazy(() => import('@components/ColorPicker/ColorPicker'));
 const S = {
   Background: styled.div`
     background-color: ${({ theme }) => theme.bg};
-    height: 100%;
+    min-height: 100%;
     transition: background-color 0.5s;
 
     @media (prefers-reduced-motion) {
@@ -20,7 +20,6 @@ const S = {
   `,
 
   Container: styled.div`
-    height: 100%;
     margin: 0 auto;
     max-width: 640px;
     padding: 14px ${spacing.XXXS};
