@@ -3,6 +3,8 @@ export * from './ColorSwitcher';
 export * from './ErrorBoundary';
 export * from './Header';
 export * from './Loading';
+export * from './PomoCount';
 export * from './Settings';
+export * from './Spinner';
 export * from './Timer';
 export * from './common';

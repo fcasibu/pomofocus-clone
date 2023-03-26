@@ -1,8 +1,8 @@
-import { Header, Modal, Timer } from '@components';
-import { Spinner } from '@components/Spinner';
+import { Header, Modal, PomoCount, Spinner, Timer } from '@components';
+import { KEY, TIMER_KEY } from '@constants';
 import { useConfigStore, useModalStore, useTimerStore } from '@stores';
 import { colors, spacing } from '@utils';
-import { Suspense, lazy, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 
 const Settings = lazy(() => import('@components/Settings/Settings'));
@@ -67,6 +67,21 @@ function App() {
     setIsOpen(false);
   };
 
+  useEffect(() => {
+    const unsubTimer = useTimerStore.subscribe((state) => {
+      localStorage.setItem(TIMER_KEY, JSON.stringify(state));
+    });
+
+    const unsubConfig = useConfigStore.subscribe((state) => {
+      localStorage.setItem(KEY, JSON.stringify(state.config));
+    });
+
+    return () => {
+      unsubTimer();
+      unsubConfig();
+    };
+  }, []);
+
   return (
     <ThemeProvider
       theme={{ bg: theme.colorThemes[currentTimerName], text: colors.WHITE }}
@@ -90,6 +105,7 @@ function App() {
                 </Suspense>
               </Modal>
             ) : null}
+            <PomoCount />
           </main>
         </S.Container>
         {'Notification' in window &&

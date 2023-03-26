@@ -59,27 +59,22 @@ export const useConfigStore = create(
     updateTimer: (newTimer: Config['timer']) =>
       set((state) => {
         state.config.timer = newTimer;
-        localStorage.setItem(KEY, JSON.stringify(state.config));
       }),
     updateSound: (newSound: Config['sound']) =>
       set((state) => {
         state.config.sound = newSound;
-        localStorage.setItem(KEY, JSON.stringify(state.config));
       }),
     updateTheme: (newTheme: Config['theme']) =>
       set((state) => {
         state.config.theme = newTheme;
-        localStorage.setItem(KEY, JSON.stringify(state.config));
       }),
     updateOthers: (newOthers: Config['others']) =>
       set((state) => {
         state.config.others = newOthers;
-        localStorage.setItem(KEY, JSON.stringify(state.config));
       }),
     configure: (newConfig: Config) =>
       set((state) => {
         state.config = newConfig;
-        localStorage.setItem(KEY, JSON.stringify(state.config));
       }),
   })),
 );
