@@ -20,6 +20,7 @@ export type TimerActions = {
   changeCurrentTimer(tabName: TimerName): void;
   play(config: Config): void;
   refresh(): void;
+  reset(): void;
 };
 
 let initialState: TimerState = {
@@ -39,7 +40,7 @@ try {
 }
 
 export const useTimerStore = create(
-  immer<TimerState & TimerActions>((set) => ({
+  immer<TimerState & TimerActions>((set, get) => ({
     ...initialState,
     startTimer: () =>
       set((state) => {
@@ -50,8 +51,6 @@ export const useTimerStore = create(
       set((state) => {
         state.isPlaying = false;
         state.isPaused = true;
-
-        localStorage.setItem(TIMER_KEY, JSON.stringify(state));
       }),
     forwardTimer: (timer: Config['timer']) =>
       set((state) => {
@@ -89,7 +88,6 @@ export const useTimerStore = create(
         state.seconds = 0;
         state.isPaused = false;
         state.isPlaying = false;
-        localStorage.setItem(TIMER_KEY, JSON.stringify(state));
       }),
     play: (config: Config) =>
       set((state) => {
@@ -126,7 +124,7 @@ export const useTimerStore = create(
           return state;
         }
 
-        state.seconds++;
+        state.seconds += 1;
 
         const isAMinuteLeft =
           state.seconds === timer.time[state.currentTimerName] - 60;
@@ -161,6 +159,11 @@ export const useTimerStore = create(
         state.seconds = 0;
         state.isPlaying = false;
         state.isPaused = false;
+      }),
+    reset: () =>
+      set((state) => {
+        get().refresh();
+        state.done = 0;
       }),
   })),
 );

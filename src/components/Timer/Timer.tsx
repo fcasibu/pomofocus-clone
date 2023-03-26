@@ -171,17 +171,17 @@ export function Timer() {
     currentTimerName: state.currentTimerName,
   }));
   const config = useConfigStore((state) => state.config);
-  const timeout = useRef(0);
+  const interval = useRef(0);
 
   useEffect(() => {
     if (timerState.isPlaying) {
-      timeout.current = setInterval(() => {
+      interval.current = setInterval(() => {
         timerActions.play(config);
       }, ONE_SECOND);
     }
 
     return () => {
-      clearTimeout(timeout.current);
+      clearInterval(interval.current);
     };
   }, [
     timerState.isPlaying,
