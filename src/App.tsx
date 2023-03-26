@@ -1,4 +1,4 @@
-import { Header, Modal, PomoCount, Spinner, Timer } from '@components';
+import { Header, Modal, PomoCount, Spinner, Tasks, Timer } from '@components';
 import { KEY, TIMER_KEY } from '@constants';
 import { useConfigStore, useModalStore, useTimerStore } from '@stores';
 import { colors, spacing } from '@utils';
@@ -24,6 +24,10 @@ const S = {
     margin: 0 auto;
     max-width: 640px;
     padding: 14px ${spacing.XXXS};
+
+    > main {
+      padding-bottom: ${spacing.XL};
+    }
   `,
 
   PermissionContainer: styled.div`
@@ -106,6 +110,7 @@ function App() {
               </Modal>
             ) : null}
             <PomoCount />
+            <Tasks />
           </main>
         </S.Container>
         {'Notification' in window &&
