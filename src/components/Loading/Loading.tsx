@@ -19,7 +19,7 @@ const S = {
     display: flex;
     flex-direction: column;
     gap: ${spacing.XXS};
-    height: 100vh;
+    height: 100%;
     justify-content: center;
     width: 100%;
 
