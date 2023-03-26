@@ -8,6 +8,7 @@ const S = {
     display: flex;
     flex-direction: column;
     gap: ${spacing.XXXS};
+    margin-bottom: ${spacing.XL};
   `,
 
   Count: styled.button`
