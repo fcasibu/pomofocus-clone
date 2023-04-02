@@ -1,6 +1,26 @@
+import { Spinner } from '@components/Spinner';
+import { Modal } from '@components/common';
+import type { Task } from '@stores';
+import {
+  useConfigStore,
+  useModalStore,
+  useTasksStore,
+  useTimerStore,
+} from '@stores';
 import { colors, spacing } from '@utils';
+import { getTime } from '@utils/getTime';
+import {
+  Suspense,
+  lazy,
+  memo,
+  useMemo,
+  useState,
+  type MouseEvent,
+} from 'react';
 import { FaCheckCircle, FaEllipsisV, FaPlusCircle } from 'react-icons/fa';
 import styled, { css } from 'styled-components';
+
+const TasksForm = lazy(() => import('./TasksForm'));
 
 const S = {
   AddTaskButton: styled.button`
@@ -27,18 +47,22 @@ const S = {
     }
   `,
 
-  CheckButton: styled.button`
+  CheckButton: styled.button<{ $isFinished: boolean }>`
     all: unset;
+    opacity: ${({ $isFinished }) => ($isFinished ? 1 : 0.3)};
+
+    svg {
+      fill: ${({ theme, $isFinished }) => ($isFinished ? theme.bg : 'auto')};
+      pointer-events: none;
+    }
 
     &:focus-visible {
       outline: auto;
     }
 
-    svg {
-      opacity: 0.2;
-
-      &:hover {
-        opacity: 1;
+    &:hover {
+      svg {
+        fill: ${({ $isFinished, theme }) => (!$isFinished ? theme.bg : 'auto')};
       }
     }
   `,
@@ -82,6 +106,21 @@ const S = {
     &:focus-visible {
       outline: auto;
     }
+
+    svg {
+      pointer-events: none;
+    }
+  `,
+
+  Note: styled.p`
+    background-color: ${colors.PASTEL_YELLOW};
+    border-radius: 3px;
+    color: ${colors.BLACK};
+    cursor: text;
+    font-size: 13px;
+    margin: 0 ${spacing.S} ${spacing.XS} ${spacing.S};
+    padding: ${spacing.XXS};
+    white-space: pre-wrap;
   `,
 
   Stats: styled.div`
@@ -113,30 +152,11 @@ const S = {
   `,
 
   Task: styled.li<{ $isSelected: boolean }>`
-    align-items: center;
     background-color: ${colors.WHITE};
-    border-radius: 3px;
-    color: ${colors.LIGHT_GREY};
     cursor: pointer;
     display: flex;
-    font-weight: 600;
-    gap: ${spacing.S};
-    justify-content: space-between;
-    overflow: hidden;
-    padding: ${spacing.S};
+    flex-direction: column;
     position: relative;
-
-    > div {
-      align-items: center;
-      display: flex;
-      gap: ${spacing.XXXS};
-      overflow-wrap: anywhere;
-
-      &:last-child {
-        gap: ${spacing.XS};
-        overflow-wrap: unset;
-      }
-    }
 
     &:before {
       background-color: ${colors.BLACK};
@@ -151,6 +171,30 @@ const S = {
     &:hover::before {
       opacity: ${({ $isSelected }) => ($isSelected ? 1 : 0.2)};
     }
+
+    > div {
+      align-items: center;
+      border-radius: 3px;
+      color: ${colors.LIGHT_GREY};
+      display: flex;
+      font-weight: 600;
+      gap: ${spacing.S};
+      justify-content: space-between;
+      overflow: hidden;
+      padding: ${spacing.S};
+
+      > div {
+        align-items: center;
+        display: flex;
+        gap: ${spacing.XXXS};
+        overflow-wrap: anywhere;
+
+        &:last-child {
+          gap: ${spacing.XS};
+          overflow-wrap: unset;
+        }
+      }
+    }
   `,
 
   Title: styled.h3`
@@ -158,18 +202,64 @@ const S = {
   `,
 };
 
-const tasks = [
-  {
-    name: 'test 1',
-    isSelected: true,
-  },
-  {
-    name: 'test 2',
-    isSelected: false,
-  },
-];
+export const Tasks = memo(() => {
+  const {
+    tasks,
+    toggleFinishTask,
+    selectTask,
+    countEstimatedPomodoros,
+    countFinishedPomodoros,
+  } = useTasksStore((state) => ({
+    tasks: state.tasks,
+    addTask: state.addTask,
+    toggleFinishTask: state.toggleFinishTask,
+    selectTask: state.selectTask,
+    countEstimatedPomodoros: state.countEstimatedPomodoros,
+    countFinishedPomodoros: state.countFinishedPomodoros,
+  }));
+  const modal = useModalStore();
+  const { time, hourFormat } = useConfigStore((state) => ({
+    time: state.config.timer.time,
+    hourFormat: state.config.theme.hourFormat,
+  }));
+  const currentTimerName = useTimerStore((state) => state.currentTimerName);
+  const [taskToEdit, setTaskToEdit] = useState<Task | undefined>();
 
-export function Tasks() {
+  const handleSelect = (id: string) => (event: MouseEvent<HTMLElement>) => {
+    const isNotSelectable = !!(event.target as HTMLElement).getAttribute(
+      'data-no-select',
+    );
+    if (isNotSelectable) return;
+
+    selectTask(id);
+  };
+
+  const handleOpenForm = (task?: Task) => () => {
+    setTaskToEdit(task);
+    modal.open('task-form');
+  };
+
+  const estimatedPomodoros = useMemo(() => countEstimatedPomodoros(), [tasks]);
+  const finishedPomodoros = useMemo(() => countFinishedPomodoros(), [tasks]);
+
+  const { formattedTime, diff } = useMemo(() => {
+    const chosenTimeInSeconds =
+      currentTimerName !== 'POMO'
+        ? time[currentTimerName] + time.POMO
+        : time.POMO;
+
+    return getTime(
+      chosenTimeInSeconds * Math.max(0, estimatedPomodoros - finishedPomodoros),
+      hourFormat,
+    );
+  }, [
+    currentTimerName,
+    hourFormat,
+    tasks,
+    estimatedPomodoros,
+    finishedPomodoros,
+  ]);
+
   return (
     <S.Container>
       <S.Header>
@@ -184,36 +274,70 @@ export function Tasks() {
       </S.Header>
       <S.Tasks>
         {tasks.map((task) => (
-          <S.Task key={task.name} $isSelected={task.isSelected}>
+          <S.Task
+            key={task.title}
+            $isSelected={task.isSelected}
+            onClick={handleSelect(task.id)}
+          >
             <div>
-              <S.CheckButton type="button" aria-label="Mark as complete">
-                <FaCheckCircle size={25} />
-              </S.CheckButton>
-              <span>{task.name}</span>
+              <div>
+                <S.CheckButton
+                  type="button"
+                  aria-label="Mark Task as complete"
+                  onClick={() => toggleFinishTask(task.id)}
+                  $isFinished={task.isFinished}
+                  data-no-select
+                >
+                  <FaCheckCircle size={25} />
+                </S.CheckButton>
+                <span>{task.title}</span>
+              </div>
+              <div>
+                <span>
+                  {task.finishedPomodoros} / {task.estimatedPomodoros}
+                </span>
+                <S.IconWrapper
+                  type="button"
+                  aria-label="Edit Task"
+                  data-no-select
+                  onClick={handleOpenForm(task)}
+                >
+                  <FaEllipsisV size={12} />
+                </S.IconWrapper>
+              </div>
             </div>
-            <div>
-              <span>0/1</span>
-              <S.IconWrapper type="button" aria-label="Edit Task">
-                <FaEllipsisV size={12} />
-              </S.IconWrapper>
-            </div>
+            {!!task.note && <S.Note data-no-select>{task.note}</S.Note>}
           </S.Task>
         ))}
       </S.Tasks>
-      <S.AddTaskButton>
+      <S.AddTaskButton type="button" onClick={handleOpenForm()}>
         <FaPlusCircle />
         <span>Add Task</span>
       </S.AddTaskButton>
-      <S.Stats>
-        <span>
-          Pomos: <strong>4/5</strong>
-        </span>
-        <span>
-          Finish In: <strong>10:48 PM</strong> (0.4h)
-        </span>
-      </S.Stats>
+      {tasks.length > 0 && (
+        <S.Stats>
+          <span>
+            Pomos:{' '}
+            <strong>
+              {finishedPomodoros} / {estimatedPomodoros}
+            </strong>
+          </span>
+          <span>
+            Finish In: <strong>{formattedTime}</strong> ({diff}h)
+          </span>
+        </S.Stats>
+      )}
+      {modal.openedModal === 'task-form' && (
+        <Modal>
+          <Suspense fallback={<Spinner />}>
+            <TasksForm taskItem={taskToEdit} />
+          </Suspense>
+        </Modal>
+      )}
     </S.Container>
   );
-}
+});
+
+Tasks.displayName = 'Tasks';
 
 export default Tasks;

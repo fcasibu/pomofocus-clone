@@ -4,6 +4,7 @@ import { notify, playAudio } from '@utils';
 import type { Immutable } from 'immer';
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
+import { useTasksStore } from './TasksStore';
 
 export type TimerState = Immutable<{
   seconds: number;
@@ -65,6 +66,7 @@ export const useTimerStore = create(
             ? TIMER_NAME.LONG
             : TIMER_NAME.SHORT;
 
+          useTasksStore.getState().incrementFinishedPomodoros();
           notify(`Time for a ${isLongBreak ? 'long' : 'short'} break`);
         } else {
           state.isPlaying = autoStartPomo;
@@ -111,6 +113,7 @@ export const useTimerStore = create(
             : TIMER_NAME.SHORT;
           state.done++;
           notify(`Time for a ${isLongBreak ? 'long' : 'short'} break!`);
+          useTasksStore.getState().incrementFinishedPomodoros();
 
           return state;
         }

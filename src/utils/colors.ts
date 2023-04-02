@@ -12,4 +12,5 @@ export const colors = {
   GREEN: 'hsl(127 26% 43%)',
   LIGHT_GREY: 'hsl(229 9% 36%)',
   LIGHTER_GREY: 'hsl(229 9% 60%)',
+  PASTEL_YELLOW: 'hsl(60, 100%, 93%)',
 } as const;

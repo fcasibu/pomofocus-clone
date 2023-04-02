@@ -1,6 +1,11 @@
 import { Header, Modal, PomoCount, Spinner, Tasks, Timer } from '@components';
-import { KEY, TIMER_KEY } from '@constants';
-import { useConfigStore, useModalStore, useTimerStore } from '@stores';
+import { KEY, TASKS_KEY, TIMER_KEY } from '@constants';
+import {
+  useConfigStore,
+  useModalStore,
+  useTasksStore,
+  useTimerStore,
+} from '@stores';
 import { colors, spacing } from '@utils';
 import { Suspense, lazy, useEffect, useState } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
@@ -71,17 +76,33 @@ function App() {
   };
 
   useEffect(() => {
-    const unsubTimer = useTimerStore.subscribe((state) => {
-      localStorage.setItem(TIMER_KEY, JSON.stringify(state));
+    const unsubTimer = useTimerStore.subscribe(
+      ({ seconds, currentTimerName: timerName, done, isPaused, isPlaying }) => {
+        localStorage.setItem(
+          TIMER_KEY,
+          JSON.stringify({
+            seconds,
+            currentTimerName: timerName,
+            done,
+            isPaused,
+            isPlaying,
+          }),
+        );
+      },
+    );
+
+    const unsubConfig = useConfigStore.subscribe(({ config }) => {
+      localStorage.setItem(KEY, JSON.stringify(config));
     });
 
-    const unsubConfig = useConfigStore.subscribe((state) => {
-      localStorage.setItem(KEY, JSON.stringify(state.config));
+    const unsubTasks = useTasksStore.subscribe(({ tasks, selectedTask }) => {
+      localStorage.setItem(TASKS_KEY, JSON.stringify({ tasks, selectedTask }));
     });
 
     return () => {
       unsubTimer();
       unsubConfig();
+      unsubTasks();
     };
   }, []);
 
