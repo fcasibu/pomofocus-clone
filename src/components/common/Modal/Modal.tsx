@@ -17,9 +17,7 @@ const S = {
   `,
 };
 
-const modalRoot = document.getElementById(
-  'settings-modal-root',
-) as HTMLDivElement;
+const modalRoot = document.getElementById('modal-root') as HTMLDivElement;
 
 export function Modal({ children }: { children: ReactNode }) {
   const { close, open, openedModal } = useModalStore((state) => ({

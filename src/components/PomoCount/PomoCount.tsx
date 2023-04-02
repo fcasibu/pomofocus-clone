@@ -1,4 +1,4 @@
-import { useTimerStore } from '@stores';
+import { useTasksStore, useTimerStore } from '@stores';
 import { colors, spacing } from '@utils';
 import styled from 'styled-components';
 
@@ -27,16 +27,18 @@ const S = {
   `,
 };
 
-// TODO: Selected Task Name after task list is implemented
 export function PomoCount() {
   const { currentTimerName, done, reset } = useTimerStore((state) => ({
     done: state.done,
     currentTimerName: state.currentTimerName,
     reset: state.reset,
   }));
+  const taskTitle = useTasksStore((state) => state.selectedTask?.title);
 
-  const title =
+  const defaultTitle =
     currentTimerName === 'POMO' ? 'Time to focus!' : 'Time for a break!';
+
+  const title = taskTitle || defaultTitle;
 
   const handleClick = () => {
     const shouldReset = confirm('Do you want to reset the pomodoro count?');

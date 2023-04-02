@@ -1,6 +1,6 @@
 import { SEO } from '@components/common/';
 import { ONE_SECOND } from '@constants';
-import { useConfigStore, useTimerStore } from '@stores';
+import { useConfigStore, useTasksStore, useTimerStore } from '@stores';
 import type { TimerName } from '@types';
 import { colors, media, padWithZeroes, spacing } from '@utils';
 import { playAudio } from '@utils/playAudio';
@@ -171,6 +171,7 @@ export function Timer() {
     currentTimerName: state.currentTimerName,
   }));
   const config = useConfigStore((state) => state.config);
+  const taskTitle = useTasksStore((state) => state.selectedTask?.title);
   const interval = useRef(0);
 
   useEffect(() => {
@@ -209,10 +210,12 @@ export function Timer() {
   const minutes = Math.floor(time / 60);
   const seconds = Math.floor(time % 60);
   const currentTime = `${padWithZeroes(minutes)}:${padWithZeroes(seconds)}`;
-  const title =
+  const defaultTitle =
     timerState.currentTimerName === 'POMO'
       ? `${currentTime} | Time to focus!`
       : `${currentTime} | Time for a break!`;
+
+  const title = taskTitle ? `${currentTime} | ${taskTitle}` : defaultTitle;
 
   return (
     <S.Container>
