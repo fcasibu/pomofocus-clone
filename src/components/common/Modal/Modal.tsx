@@ -1,9 +1,11 @@
+import { MODAL_ROOT } from '@constants';
 import { useModalStore } from '@stores';
 import { zSettingsBackdrop } from '@utils';
 import type { ReactNode } from 'react';
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
+import { shallow } from 'zustand/shallow';
 
 const S = {
   Backdrop: styled.div`
@@ -17,14 +19,26 @@ const S = {
   `,
 };
 
-const modalRoot = document.getElementById('modal-root') as HTMLDivElement;
-
 export function Modal({ children }: { children: ReactNode }) {
-  const { close, open, openedModal } = useModalStore((state) => ({
-    close: state.close,
-    open: state.open,
-    openedModal: state.openedModal,
-  }));
+  const { close, open, openedModal } = useModalStore(
+    (state) => ({
+      close: state.close,
+      open: state.open,
+      openedModal: state.openedModal,
+    }),
+    shallow,
+  );
+
+  useEffect(() => {
+    const bodyEl = document.body;
+    if (bodyEl.scrollHeight > bodyEl.clientHeight) {
+      bodyEl.style.marginRight = '15px';
+    }
+
+    return () => {
+      bodyEl.style.marginRight = 'unset';
+    };
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -51,7 +65,7 @@ export function Modal({ children }: { children: ReactNode }) {
       />
       {children}
     </>,
-    modalRoot,
+    MODAL_ROOT,
   );
 }
 

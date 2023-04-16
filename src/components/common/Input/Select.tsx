@@ -7,6 +7,7 @@ import type { ChangeEvent, ReactNode, SelectHTMLAttributes } from 'react';
 import type { Control } from 'react-hook-form';
 import { useController } from 'react-hook-form';
 import styled from 'styled-components';
+import { shallow } from 'zustand/shallow';
 
 export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   name: ConfigKeys;
@@ -42,10 +43,13 @@ export const Select = ({
   children,
   ...props
 }: SelectProps) => {
-  const { sound, updateSound } = useConfigStore((state) => ({
-    sound: state.config.sound,
-    updateSound: state.updateSound,
-  }));
+  const { sound, updateSound } = useConfigStore(
+    (state) => ({
+      sound: state.config.sound,
+      updateSound: state.updateSound,
+    }),
+    shallow,
+  );
 
   const { field } = useController({
     name,

@@ -1,6 +1,7 @@
 import { useTasksStore, useTimerStore } from '@stores';
 import { colors, spacing } from '@utils';
 import styled from 'styled-components';
+import { shallow } from 'zustand/shallow';
 
 const S = {
   Container: styled.div`
@@ -28,11 +29,14 @@ const S = {
 };
 
 export function PomoCount() {
-  const { currentTimerName, done, reset } = useTimerStore((state) => ({
-    done: state.done,
-    currentTimerName: state.currentTimerName,
-    reset: state.reset,
-  }));
+  const { currentTimerName, done, reset } = useTimerStore(
+    (state) => ({
+      done: state.done,
+      currentTimerName: state.currentTimerName,
+      reset: state.reset,
+    }),
+    shallow,
+  );
   const taskTitle = useTasksStore((state) => state.selectedTask?.title);
 
   const defaultTitle =

@@ -1,26 +1,18 @@
 import { useConfigStore, useModalStore } from '@stores';
 import type { TimerName } from '@types';
-import { colors, spacing, zSettingsModal } from '@utils';
+import { colors, ModalContainer, spacing } from '@utils';
 import produce from 'immer';
 import FocusLock from 'react-focus-lock';
 import { FaCheck } from 'react-icons/fa';
 import styled from 'styled-components';
+import { shallow } from 'zustand/shallow';
 
 const S = {
   Container: styled.div`
-    background-color: ${colors.WHITE};
-    border-radius: 5px;
-    color: ${colors.BLACK};
-    left: 50%;
+    ${ModalContainer}
     max-height: 600px;
     max-width: 400px;
     overflow-y: auto;
-    padding: ${spacing.XS};
-    position: fixed;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 80%;
-    z-index: ${zSettingsModal};
   `,
 
   Colors: styled.ul`
@@ -91,14 +83,20 @@ const listOfColors = Object.entries(colors).filter(([colorKey]) =>
 );
 
 export function ColorPicker() {
-  const { colorFor, open } = useModalStore((state) => ({
-    open: state.open,
-    colorFor: state.colorFor,
-  }));
-  const { theme, updateTheme } = useConfigStore((state) => ({
-    theme: state.config.theme,
-    updateTheme: state.updateTheme,
-  }));
+  const { colorFor, open } = useModalStore(
+    (state) => ({
+      open: state.open,
+      colorFor: state.colorFor,
+    }),
+    shallow,
+  );
+  const { theme, updateTheme } = useConfigStore(
+    (state) => ({
+      theme: state.config.theme,
+      updateTheme: state.updateTheme,
+    }),
+    shallow,
+  );
 
   const handleClick = (newColorValue: string) => () => {
     updateTheme(

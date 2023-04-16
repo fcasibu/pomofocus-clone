@@ -45,7 +45,7 @@ let initialState: Config = {
   },
 };
 
-// TODO: Firebase
+// TODO: Supabase
 try {
   initialState =
     JSON.parse(localStorage.getItem(KEY) as string) ?? initialState;

@@ -5,6 +5,7 @@ import { FaChartBar, FaCheckCircle, FaCog, FaUserAlt } from 'react-icons/fa';
 import type { IconType } from 'react-icons/lib';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { shallow } from 'zustand/shallow';
 
 type Links = {
   icon: IconType;
@@ -105,10 +106,13 @@ const S = {
 };
 
 export function Header() {
-  const { seconds, currentTimerName } = useTimerStore((state) => ({
-    seconds: state.seconds,
-    currentTimerName: state.currentTimerName,
-  }));
+  const { seconds, currentTimerName } = useTimerStore(
+    (state) => ({
+      seconds: state.seconds,
+      currentTimerName: state.currentTimerName,
+    }),
+    shallow,
+  );
   const time = useConfigStore((state) => state.config.timer.time);
   const percentageValue = (seconds / time[currentTimerName]) * 100;
 
