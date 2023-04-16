@@ -7,6 +7,7 @@ import { playAudio } from '@utils/playAudio';
 import { useEffect, useRef } from 'react';
 import { FaStepForward } from 'react-icons/fa';
 import styled, { css } from 'styled-components';
+import { shallow } from 'zustand/shallow';
 
 type Tabs = {
   name: TimerName;
@@ -139,7 +140,7 @@ const S = {
   `,
 };
 
-const tabs: Tabs[] = [
+const Tabs: Tabs[] = [
   {
     name: 'POMO',
     short: 'Pomo',
@@ -158,18 +159,24 @@ const tabs: Tabs[] = [
 ];
 
 export function Timer() {
-  const timerActions = useTimerStore((state) => ({
-    startTimer: state.startTimer,
-    pauseTimer: state.pauseTimer,
-    changeCurrentTimer: state.changeCurrentTimer,
-    forwardTimer: state.forwardTimer,
-    play: state.play,
-  }));
-  const timerState = useTimerStore((state) => ({
-    seconds: state.seconds,
-    isPlaying: state.isPlaying,
-    currentTimerName: state.currentTimerName,
-  }));
+  const timerActions = useTimerStore(
+    (state) => ({
+      startTimer: state.startTimer,
+      pauseTimer: state.pauseTimer,
+      changeCurrentTimer: state.changeCurrentTimer,
+      forwardTimer: state.forwardTimer,
+      play: state.play,
+    }),
+    shallow,
+  );
+  const timerState = useTimerStore(
+    (state) => ({
+      seconds: state.seconds,
+      isPlaying: state.isPlaying,
+      currentTimerName: state.currentTimerName,
+    }),
+    shallow,
+  );
   const config = useConfigStore((state) => state.config);
   const taskTitle = useTasksStore((state) => state.selectedTask?.title);
   const interval = useRef(0);
@@ -228,7 +235,7 @@ export function Timer() {
       />
       <header>
         <S.Tabs>
-          {tabs.map(({ name, short, long }) => (
+          {Tabs.map(({ name, short, long }) => (
             <S.Tab
               key={name}
               $isSelected={name === timerState.currentTimerName}

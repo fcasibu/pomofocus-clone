@@ -1,14 +1,15 @@
 import { Input, TextArea } from '@components/common';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { tasksSchema } from '@schemas';
 import type { Task } from '@stores';
 import { useModalStore, useTasksStore, type TaskFormInput } from '@stores';
-import { colors, spacing, zSettingsModal } from '@utils';
+import { colors, ModalContainer, ModalFooter, spacing } from '@utils';
 import { useState } from 'react';
 import FocusLock from 'react-focus-lock';
 import { useForm } from 'react-hook-form';
 import { FaAngleDown, FaAngleUp } from 'react-icons/fa';
 import styled from 'styled-components';
-import * as yup from 'yup';
+import { shallow } from 'zustand/shallow';
 
 const S = {
   ButtonsContainer: styled.div`
@@ -42,26 +43,15 @@ const S = {
   `,
 
   Form: styled.form`
-    background-color: ${colors.WHITE};
-    border-radius: 5px;
-    color: ${colors.BLACK};
-    left: 50%;
+    ${ModalContainer}
     max-width: 400px;
-    padding: ${spacing.XS};
-    position: fixed;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
-    z-index: ${zSettingsModal};
   `,
 
   Footer: styled.div`
+    ${ModalFooter}
     align-items: center;
-    background-color: ${colors.TRANSPARENT_BLACK};
     display: flex;
     justify-content: space-between;
-    margin: 0 -${spacing.XS} -${spacing.XS};
-    padding: ${spacing.XXXS} ${spacing.XS};
 
     button {
       all: unset;
@@ -170,22 +160,19 @@ const S = {
   `,
 };
 
-const tasksSchema = yup.object({
-  title: yup.string().required(),
-  estimatedPomodoros: yup.number().required().min(1).default(1),
-  note: yup.string(),
-});
-
 type TasksFormProps = {
   taskItem?: Task;
 };
 
 export function TasksForm({ taskItem }: TasksFormProps) {
-  const { update, add, deleteTask } = useTasksStore((state) => ({
-    update: state.editTask,
-    add: state.addTask,
-    deleteTask: state.deleteTask,
-  }));
+  const { update, add, deleteTask } = useTasksStore(
+    (state) => ({
+      update: state.editTask,
+      add: state.addTask,
+      deleteTask: state.deleteTask,
+    }),
+    shallow,
+  );
   const {
     register,
     handleSubmit,

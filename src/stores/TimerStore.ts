@@ -32,7 +32,7 @@ let initialState: TimerState = {
   isPlaying: false,
 };
 
-// TODO: Firebase
+// TODO: Supabase
 try {
   initialState =
     JSON.parse(localStorage.getItem(TIMER_KEY) as string) ?? initialState;

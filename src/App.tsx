@@ -1,17 +1,23 @@
 import { Header, Modal, PomoCount, Spinner, Tasks, Timer } from '@components';
-import { KEY, TASKS_KEY, TIMER_KEY } from '@constants';
+import { KEY, TASKS_KEY, TEMPLATES_KEY, TIMER_KEY } from '@constants';
 import {
   useConfigStore,
   useModalStore,
   useTasksStore,
+  useTemplateStore,
   useTimerStore,
 } from '@stores';
 import { colors, spacing } from '@utils';
-import { Suspense, lazy, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 
 const Settings = lazy(() => import('@components/Settings/Settings'));
 const ColorPicker = lazy(() => import('@components/ColorPicker/ColorPicker'));
+const TemplateForm = lazy(() => import('@components/Templates/TemplateForm'));
+const TemplateSaveTo = lazy(
+  () => import('@components/Templates/TemplateSaveTo'),
+);
+const TemplateList = lazy(() => import('@components/Templates/TemplateList'));
 
 const S = {
   Background: styled.div`
@@ -99,10 +105,15 @@ function App() {
       localStorage.setItem(TASKS_KEY, JSON.stringify({ tasks, selectedTask }));
     });
 
+    const unsubTemplates = useTemplateStore.subscribe(({ templates }) => {
+      localStorage.setItem(TEMPLATES_KEY, JSON.stringify({ templates }));
+    });
+
     return () => {
       unsubTimer();
       unsubConfig();
       unsubTasks();
+      unsubTemplates();
     };
   }, []);
 
@@ -129,6 +140,28 @@ function App() {
                 </Suspense>
               </Modal>
             ) : null}
+            {openedModal === 'template-save' && (
+              <Modal>
+                <Suspense fallback={<Spinner />}>
+                  <TemplateForm />
+                </Suspense>
+              </Modal>
+            )}
+            {openedModal === 'template-save-to' && (
+              <Modal>
+                <Suspense fallback={<Spinner />}>
+                  <TemplateSaveTo />
+                </Suspense>
+              </Modal>
+            )}
+            {openedModal === 'template-list' && (
+              <Modal>
+                <Suspense fallback={<Spinner />}>
+                  <TemplateList />
+                </Suspense>
+              </Modal>
+            )}
+
             <PomoCount />
             <Tasks />
           </main>

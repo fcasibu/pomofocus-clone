@@ -1,12 +1,7 @@
 import { Spinner } from '@components/Spinner';
 import { Modal } from '@components/common';
 import type { Task } from '@stores';
-import {
-  useConfigStore,
-  useModalStore,
-  useTasksStore,
-  useTimerStore,
-} from '@stores';
+import { useConfigStore, useModalStore, useTasksStore } from '@stores';
 import { colors, spacing } from '@utils';
 import { getTime } from '@utils/getTime';
 import {
@@ -19,6 +14,8 @@ import {
 } from 'react';
 import { FaCheckCircle, FaEllipsisV, FaPlusCircle } from 'react-icons/fa';
 import styled, { css } from 'styled-components';
+import { shallow } from 'zustand/shallow';
+import TaskOptionDropdown from './TaskOptionDropdown';
 
 const TasksForm = lazy(() => import('./TasksForm'));
 
@@ -78,9 +75,17 @@ const S = {
     display: flex;
     justify-content: space-between;
     padding-bottom: ${spacing.XS};
+    position: relative;
+
+    > div {
+      position: absolute;
+      right: 0;
+      top: ${spacing.XXXXL};
+      z-index: 2;
+    }
   `,
 
-  IconWrapper: styled.button<{ $isTransparent?: boolean }>`
+  TaskOptionButton: styled.button<{ $isTransparent?: boolean }>`
     all: unset;
     background-color: ${colors.TRANSPARENT_WHITE};
     border-radius: 4px;
@@ -98,6 +103,10 @@ const S = {
             padding: ${spacing.XXXXS};
           `}
 
+    &:active {
+      transform: scaleY(0.94) translateY(2px);
+    }
+
     &:hover {
       background-color: ${({ $isTransparent }) =>
         $isTransparent ? 'hsla(0 0% 100% / 0.15)' : colors.TRANSPARENT_BLACK};
@@ -112,6 +121,10 @@ const S = {
     }
   `,
 
+  TaskOptionContainer: styled.div<{ $isOpen: boolean }>`
+    display: ${({ $isOpen }) => ($isOpen ? 'unset' : 'none')};
+  `,
+
   Note: styled.p`
     background-color: ${colors.PASTEL_YELLOW};
     border-radius: 3px;
@@ -119,6 +132,7 @@ const S = {
     cursor: text;
     font-size: 13px;
     margin: 0 ${spacing.S} ${spacing.XS} ${spacing.S};
+    overflow-wrap: anywhere;
     padding: ${spacing.XXS};
     white-space: pre-wrap;
   `,
@@ -190,6 +204,7 @@ const S = {
         overflow-wrap: anywhere;
 
         &:last-child {
+          flex-shrink: 0;
           gap: ${spacing.XS};
           overflow-wrap: unset;
         }
@@ -209,20 +224,30 @@ export const Tasks = memo(() => {
     selectTask,
     countEstimatedPomodoros,
     countFinishedPomodoros,
-  } = useTasksStore((state) => ({
-    tasks: state.tasks,
-    addTask: state.addTask,
-    toggleFinishTask: state.toggleFinishTask,
-    selectTask: state.selectTask,
-    countEstimatedPomodoros: state.countEstimatedPomodoros,
-    countFinishedPomodoros: state.countFinishedPomodoros,
-  }));
-  const modal = useModalStore();
-  const { time, hourFormat } = useConfigStore((state) => ({
-    time: state.config.timer.time,
-    hourFormat: state.config.theme.hourFormat,
-  }));
-  const currentTimerName = useTimerStore((state) => state.currentTimerName);
+  } = useTasksStore(
+    (state) => ({
+      tasks: state.tasks,
+      addTask: state.addTask,
+      toggleFinishTask: state.toggleFinishTask,
+      selectTask: state.selectTask,
+      countEstimatedPomodoros: state.countEstimatedPomodoros,
+      countFinishedPomodoros: state.countFinishedPomodoros,
+    }),
+    shallow,
+  );
+  const { openedModal, open } = useModalStore(
+    (state) => ({ openedModal: state.openedModal, open: state.open }),
+    shallow,
+  );
+  const [isOpen, setIsOpen] = useState(false);
+  const { time, hourFormat, longBreakInterval } = useConfigStore(
+    (state) => ({
+      time: state.config.timer.time,
+      hourFormat: state.config.theme.hourFormat,
+      longBreakInterval: state.config.timer.longBreakInterval,
+    }),
+    shallow,
+  );
   const [taskToEdit, setTaskToEdit] = useState<Task | undefined>();
 
   const handleSelect = (id: string) => (event: MouseEvent<HTMLElement>) => {
@@ -236,7 +261,7 @@ export const Tasks = memo(() => {
 
   const handleOpenForm = (task?: Task) => () => {
     setTaskToEdit(task);
-    modal.open('task-form');
+    open('task-form');
   };
 
   const estimatedPomodoros = useMemo(() => countEstimatedPomodoros(), [tasks]);
@@ -244,38 +269,39 @@ export const Tasks = memo(() => {
 
   const { formattedTime, diff } = useMemo(() => {
     const chosenTimeInSeconds =
-      currentTimerName !== 'POMO'
-        ? time[currentTimerName] + time.POMO
-        : time.POMO;
+      time.POMO * Math.max(0, estimatedPomodoros - finishedPomodoros);
 
-    return getTime(
-      chosenTimeInSeconds * Math.max(0, estimatedPomodoros - finishedPomodoros),
-      hourFormat,
-    );
+    return getTime(chosenTimeInSeconds, hourFormat);
   }, [
-    currentTimerName,
     hourFormat,
-    tasks,
     estimatedPomodoros,
     finishedPomodoros,
+    longBreakInterval,
+    time,
   ]);
+
+  const handleOpenDropdown = () => setIsOpen((prev) => !prev);
 
   return (
     <S.Container>
       <S.Header>
         <S.Title>Tasks</S.Title>
-        <S.IconWrapper
+        <S.TaskOptionButton
           type="button"
           aria-label="Toggle tasks options dropdown"
+          onClick={handleOpenDropdown}
           $isTransparent
         >
           <FaEllipsisV />
-        </S.IconWrapper>
+        </S.TaskOptionButton>
+        <S.TaskOptionContainer $isOpen={isOpen}>
+          <TaskOptionDropdown setIsOpen={setIsOpen} />
+        </S.TaskOptionContainer>
       </S.Header>
       <S.Tasks>
         {tasks.map((task) => (
           <S.Task
-            key={task.title}
+            key={task.id}
             $isSelected={task.isSelected}
             onClick={handleSelect(task.id)}
           >
@@ -296,14 +322,14 @@ export const Tasks = memo(() => {
                 <span>
                   {task.finishedPomodoros} / {task.estimatedPomodoros}
                 </span>
-                <S.IconWrapper
+                <S.TaskOptionButton
                   type="button"
                   aria-label="Edit Task"
                   data-no-select
                   onClick={handleOpenForm(task)}
                 >
                   <FaEllipsisV size={12} />
-                </S.IconWrapper>
+                </S.TaskOptionButton>
               </div>
             </div>
             {!!task.note && <S.Note data-no-select>{task.note}</S.Note>}
@@ -323,11 +349,11 @@ export const Tasks = memo(() => {
             </strong>
           </span>
           <span>
-            Finish In: <strong>{formattedTime}</strong> ({diff}h)
+            Finish At: <strong>{formattedTime}</strong> ({diff}h)
           </span>
         </S.Stats>
       )}
-      {modal.openedModal === 'task-form' && (
+      {openedModal === 'task-form' && (
         <Modal>
           <Suspense fallback={<Spinner />}>
             <TasksForm taskItem={taskToEdit} />

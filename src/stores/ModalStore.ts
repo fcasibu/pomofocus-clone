@@ -3,7 +3,14 @@ import type { Immutable } from 'immer';
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
-export type ModalType = 'settings' | 'colors' | 'closed' | 'task-form';
+export type ModalType =
+  | 'settings'
+  | 'colors'
+  | 'closed'
+  | 'task-form'
+  | 'template-save'
+  | 'template-save-to'
+  | 'template-list';
 
 type ModalState = Immutable<{
   openedModal: ModalType;

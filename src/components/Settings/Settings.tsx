@@ -4,29 +4,27 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { configSchema } from '@schemas';
 import { useConfigStore, useModalStore, useTimerStore } from '@stores';
 import type { Config } from '@types';
-import { colors, spacing, zSettingsModal } from '@utils';
+import {
+  colors,
+  ModalContainer,
+  ModalFooter,
+  ModalHeader,
+  spacing,
+} from '@utils';
 import type { ReactNode } from 'react';
 import FocusLock from 'react-focus-lock';
 import { useForm } from 'react-hook-form';
 import { FaRegClock } from 'react-icons/fa';
 import { VscClose } from 'react-icons/vsc';
 import styled from 'styled-components';
+import { shallow } from 'zustand/shallow';
 
 const S = {
   Container: styled.div`
-    background-color: ${colors.WHITE};
-    border-radius: 5px;
-    color: ${colors.BLACK};
-    left: 50%;
+    ${ModalContainer}
     max-height: 600px;
     max-width: 400px;
     overflow-y: scroll;
-    padding: ${spacing.XS};
-    position: fixed;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
-    z-index: ${zSettingsModal};
   `,
 
   Control: styled.div`
@@ -44,9 +42,7 @@ const S = {
   `,
 
   Footer: styled.div`
-    background-color: ${colors.TRANSPARENT_BLACK};
-    margin: 0 -${spacing.XS} -${spacing.XS};
-    padding: ${spacing.XXXS} ${spacing.XS};
+    ${ModalFooter}
 
     > button {
       all: unset;
@@ -81,34 +77,7 @@ const S = {
   `,
 
   Header: styled.div`
-    align-items: center;
-    border-bottom: 1px solid ${colors.TRANSPARENT_BLACK};
-    color: ${colors.LIGHT_GREY};
-    display: flex;
-    gap: ${spacing.XXS};
-    justify-content: space-between;
-    margin: 0 -${spacing.XS};
-    padding-bottom: ${spacing.XXS};
-
-    > h2 {
-      font-size: 14px;
-      font-weight: 700;
-      margin: 0 ${spacing.XS};
-    }
-
-    > button {
-      all: unset;
-      cursor: pointer;
-      margin: 0 ${spacing.XS};
-
-      &:focus-visible {
-        outline: auto;
-      }
-
-      &:hover {
-        color: ${colors.BLACK};
-      }
-    }
+    ${ModalHeader}
   `,
 
   NotificationContainer: styled.div`
@@ -174,11 +143,14 @@ function Setting({ title, children }: { title: string; children: ReactNode }) {
 
 export function Settings() {
   const close = useModalStore((state) => state.close);
-  const { configure, timer, config } = useConfigStore((state) => ({
-    configure: state.configure,
-    timer: state.config.timer,
-    config: state.config,
-  }));
+  const { configure, timer, config } = useConfigStore(
+    (state) => ({
+      configure: state.configure,
+      timer: state.config.timer,
+      config: state.config,
+    }),
+    shallow,
+  );
   const refresh = useTimerStore((state) => state.refresh);
 
   const {

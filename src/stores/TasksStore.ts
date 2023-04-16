@@ -24,6 +24,7 @@ type TasksState = Immutable<{
 }>;
 
 type TasksActions = {
+  addTasks(tasks: Task[]): void;
   addTask(task: TaskFormInput): void;
   deleteTask(id: string): void;
   editTask(id: string, updatedTask: TaskFormInput): void;
@@ -32,32 +33,12 @@ type TasksActions = {
   incrementFinishedPomodoros(): void;
   countEstimatedPomodoros(): number;
   countFinishedPomodoros(): number;
+  clear(type: string): void;
 };
 
-const tasks = [
-  {
-    id: '90a6a950-ed07-41b9-bcd8-6e97de3e1615',
-    title: 'test 1',
-    finishedPomodoros: 0,
-    estimatedPomodoros: 4,
-    note: 'testset',
-    isFinished: false,
-    isSelected: true,
-  },
-  {
-    id: '3dca349e-14f2-4d1a-8677-61a111bd75aa',
-    title: 'test 2',
-    finishedPomodoros: 0,
-    estimatedPomodoros: 4,
-    note: 'testest',
-    isFinished: false,
-    isSelected: false,
-  },
-];
-
 let initialState = {
-  tasks: tasks,
-  selectedTask: tasks[0],
+  tasks: [],
+  selectedTask: null,
 };
 
 try {
@@ -70,6 +51,10 @@ try {
 export const useTasksStore = create(
   immer<TasksState & TasksActions>((set, get) => ({
     ...initialState,
+    addTasks: (tasks: Task[]) =>
+      set((state) => {
+        state.tasks.push(...tasks);
+      }),
     addTask: (task: TaskFormInput) =>
       set((state) => {
         const val = {
@@ -135,5 +120,21 @@ export const useTasksStore = create(
       get().tasks.reduce((acc, curr) => acc + curr.estimatedPomodoros, 0),
     countFinishedPomodoros: () =>
       get().tasks.reduce((acc, curr) => acc + curr.finishedPomodoros, 0),
+    clear: (type: string) =>
+      set((state) => {
+        switch (type) {
+          case 'CLEAR_ALL_TASKS': {
+            state.tasks = [];
+            break;
+          }
+          case 'CLEAR_FINISHED_TASKS': {
+            state.tasks = state.tasks.filter((task) => !task.isFinished);
+            break;
+          }
+          default: {
+            throw new Error(`Unexpected type: ${type}`);
+          }
+        }
+      }),
   })),
 );

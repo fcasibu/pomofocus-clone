@@ -8,6 +8,7 @@ import { useCallback, useState } from 'react';
 import type { Control } from 'react-hook-form';
 import { useController } from 'react-hook-form';
 import styled from 'styled-components';
+import { shallow } from 'zustand/shallow';
 
 export interface RangeProps extends InputHTMLAttributes<HTMLInputElement> {
   control: Control<Config>;
@@ -56,10 +57,13 @@ export const Range = ({
   isAudio = true,
   ...props
 }: RangeProps) => {
-  const { sound, updateSound } = useConfigStore((state) => ({
-    sound: state.config.sound,
-    updateSound: state.updateSound,
-  }));
+  const { sound, updateSound } = useConfigStore(
+    (state) => ({
+      sound: state.config.sound,
+      updateSound: state.updateSound,
+    }),
+    shallow,
+  );
   const { field } = useController({
     control,
     name,
