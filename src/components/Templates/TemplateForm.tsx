@@ -160,10 +160,19 @@ export function TemplateForm() {
 
   return (
     <FocusLock>
-      <S.Form onSubmit={handleSubmit(onSubmit)}>
+      <S.Form
+        onSubmit={handleSubmit(onSubmit)}
+        aria-labelledby="template-form-label"
+        role="dialog"
+        aria-modal="true"
+      >
         <S.Header>
-          <h2 id="settings-modal-label">Save Template</h2>
-          <button type="button" onClick={close} aria-label="Close Settings">
+          <h2 id="template-form-label">Save Template</h2>
+          <button
+            type="button"
+            onClick={close}
+            aria-label="Close Template Form"
+          >
             <VscClose size={20} />
           </button>
         </S.Header>

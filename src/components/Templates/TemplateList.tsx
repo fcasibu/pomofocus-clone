@@ -5,16 +5,16 @@ import { useRef } from 'react';
 import { VscClose } from 'react-icons/vsc';
 import styled from 'styled-components';
 import { shallow } from 'zustand/shallow';
+import FocusLock from 'react-focus-lock';
 
 const S = {
   Container: styled.div`
     ${ModalContainer}
     max-width: 400px;
-    min-height: 110px;
     padding-bottom: 0;
 
     > p {
-      margin-top: ${spacing.XS};
+      margin: ${spacing.XS} 0;
       text-align: center;
     }
   `,
@@ -36,9 +36,6 @@ const S = {
       align-items: center;
       cursor: pointer;
       display: flex;
-      justify-content: space-between;
-      padding: ${spacing.XXS} ${spacing.XS};
-      width: 100%;
 
       &:hover,
       &:focus-visible {
@@ -46,12 +43,23 @@ const S = {
       }
     }
 
-    > li > span {
-      font-size: 15px;
-    }
-
     > li > button {
       all: unset;
+      padding: ${spacing.XXS} ${spacing.XS};
+
+      &:first-child {
+        margin-right: auto;
+        overflow-wrap: anywhere;
+        width: 100%;
+      }
+
+      &:last-child {
+        flex-shrink: 0;
+      }
+
+      &:focus-visible {
+        outline: auto;
+      }
     }
   `,
 };
@@ -81,31 +89,43 @@ export function TemplateList() {
   };
 
   return (
-    <S.Container>
-      <S.Header>
-        <h2 id="settings-modal-label">Select a template</h2>
-      </S.Header>
+    <FocusLock>
+      <S.Container
+        aria-labelledby="template-list-label"
+        role="dialog"
+        aria-modal="true"
+      >
+        <S.Header>
+          <h2 id="template-list-label">Select a template</h2>
+        </S.Header>
 
-      {templateNames.length > 0 ? (
-        <S.Templates>
-          {templateNames.map((name) => (
-            <li key={name} onClick={handleAdd(name)}>
-              <span>{name}</span>
-              <button
-                type="button"
-                ref={deleteRef}
-                onClick={handleDelete(name)}
-                aria-label={`Delete ${name} template`}
-              >
-                <VscClose size={15} />
-              </button>
-            </li>
-          ))}
-        </S.Templates>
-      ) : (
-        <p>No template has been saved yet</p>
-      )}
-    </S.Container>
+        {templateNames.length > 0 ? (
+          <S.Templates>
+            {templateNames.map((name) => (
+              <li key={name}>
+                <button
+                  type="button"
+                  onClick={handleAdd(name)}
+                  aria-label={`Add ${name} template to current tasks`}
+                >
+                  {name}
+                </button>
+                <button
+                  type="button"
+                  ref={deleteRef}
+                  onClick={handleDelete(name)}
+                  aria-label={`Delete ${name} template`}
+                >
+                  <VscClose size={15} />
+                </button>
+              </li>
+            ))}
+          </S.Templates>
+        ) : (
+          <p>No template has been saved yet</p>
+        )}
+      </S.Container>
+    </FocusLock>
   );
 }
 

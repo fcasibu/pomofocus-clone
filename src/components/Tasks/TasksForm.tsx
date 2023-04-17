@@ -217,7 +217,12 @@ export function TasksForm({ taskItem }: TasksFormProps) {
 
   return (
     <FocusLock>
-      <S.Form onSubmit={handleSubmit(onSubmit)}>
+      <S.Form
+        onSubmit={handleSubmit(onSubmit)}
+        aria-label="Task Form"
+        role="dialog"
+        aria-modal="true"
+      >
         <S.Input
           placeholder="What are you working on?"
           {...register('title')}

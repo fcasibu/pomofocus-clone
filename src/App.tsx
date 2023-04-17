@@ -20,9 +20,10 @@ const TemplateSaveTo = lazy(
 const TemplateList = lazy(() => import('@components/Templates/TemplateList'));
 
 const S = {
-  Background: styled.div`
+  Background: styled.div<{ $shouldPad?: boolean }>`
     background-color: ${({ theme }) => theme.bg};
     min-height: 100%;
+    padding-right: ${({ $shouldPad }) => $shouldPad && '17px'};
     transition: background-color 0.5s;
 
     @media (prefers-reduced-motion) {
@@ -117,11 +118,15 @@ function App() {
     };
   }, []);
 
+  const shouldPad =
+    'document' in window &&
+    document.body.scrollHeight > document.body.clientHeight;
+
   return (
     <ThemeProvider
       theme={{ bg: theme.colorThemes[currentTimerName], text: colors.WHITE }}
     >
-      <S.Background>
+      <S.Background $shouldPad={openedModal !== 'closed' && shouldPad}>
         <S.Container>
           <Header />
           <main>
