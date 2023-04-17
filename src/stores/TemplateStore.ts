@@ -34,10 +34,10 @@ export const useTemplateStore = create(
     ...initialState,
     addTemplate: (name: string) => {
       const tasksStore = useTasksStore.getState();
-      const tasksToAdd = get().templates[name].map((task, idx) => ({
+      const tasksToAdd = get().templates[name].map((task) => ({
         ...task,
         id: crypto.randomUUID(),
-        isSelected: tasksStore.tasks.length === 0 && idx === 0,
+        isSelected: false,
       }));
       if (tasksToAdd) {
         tasksStore.addTasks(tasksToAdd);
