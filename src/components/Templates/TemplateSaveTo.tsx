@@ -133,10 +133,14 @@ export function TemplateSaveTo() {
 
   return (
     <FocusLock>
-      <S.Container>
+      <S.Container
+        aria-labelledby="template-save-to-label"
+        role="dialog"
+        aria-modal="true"
+      >
         <S.Header>
-          <h2 id="settings-modal-label">Save Template to</h2>
-          <button type="button" onClick={close} aria-label="Close Settings">
+          <h2 id="template-save-to-label">Save Template to</h2>
+          <button type="button" onClick={close} aria-label="Close Modal">
             <VscClose size={20} />
           </button>
         </S.Header>

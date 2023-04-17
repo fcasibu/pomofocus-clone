@@ -125,10 +125,14 @@ export const useTasksStore = create(
         switch (type) {
           case 'CLEAR_ALL_TASKS': {
             state.tasks = [];
+            state.selectedTask = null;
             break;
           }
           case 'CLEAR_FINISHED_TASKS': {
+            const tasksLen = state.tasks.length;
             state.tasks = state.tasks.filter((task) => !task.isFinished);
+            state.selectedTask =
+              tasksLen !== state.tasks.length ? null : state.selectedTask;
             break;
           }
           default: {

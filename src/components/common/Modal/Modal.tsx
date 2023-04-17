@@ -30,17 +30,6 @@ export function Modal({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    const bodyEl = document.body;
-    if (bodyEl.scrollHeight > bodyEl.clientHeight) {
-      bodyEl.style.marginRight = '15px';
-    }
-
-    return () => {
-      bodyEl.style.marginRight = 'unset';
-    };
-  }, []);
-
-  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         if (openedModal !== 'colors') {
