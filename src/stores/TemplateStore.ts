@@ -38,6 +38,8 @@ export const useTemplateStore = create(
         ...task,
         id: crypto.randomUUID(),
         isSelected: false,
+        isFinished: false,
+        finishedPomodoros: 0,
       }));
       if (tasksToAdd) {
         tasksStore.addTasks(tasksToAdd);
