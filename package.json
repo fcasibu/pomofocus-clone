@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "start": "vite preview",
     "format": "prettier src/**/*.{tsx,ts} --write",
     "eslint": "eslint src/**/*.{tsx,ts}",
     "stylelint": "stylelint src/**/*.{tsx,ts}",
